@@ -5,10 +5,9 @@ import { AdminAuthProvider } from './context/AdminAuthContext'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import AdminHeader from './components/common/AdminHeader'
 import AdminDashboard from './pages/AdminDashboard'
-import ManualOrderPage from './pages/ManualOrderPage'
 import MenuManagementPage from './pages/MenuManagementPage'
 import OrderQueuePage from './pages/OrderQueuePage'
-import OfflinePaymentPage from './pages/OfflinePaymentPage'
+import PickupPage from './pages/PickupPage'
 
 function App() {
   return (
@@ -20,10 +19,11 @@ function App() {
             <main>
               <Routes>
                 <Route path="/" element={<AdminDashboard />} />
-                <Route path="/manual-order" element={<ManualOrderPage />} />
                 <Route path="/menu" element={<MenuManagementPage />} />
+                <Route path="/kitchen" element={<OrderQueuePage />} />
+                <Route path="/pickup" element={<PickupPage />} />
+                {/* Redirect old route to new route */}
                 <Route path="/orders" element={<OrderQueuePage />} />
-                <Route path="/payments" element={<OfflinePaymentPage />} />
               </Routes>
             </main>
           </ProtectedRoute>

@@ -18,6 +18,12 @@ const menuItemValidation = [
   body('price')
     .isFloat({ min: 0 })
     .withMessage('Price must be a positive number'),
+  body('imageUrl')
+    .optional({ nullable: true, checkFalsy: true })
+    .trim(),
+  body('type')
+    .isIn(['packaged', 'live'])
+    .withMessage('Type must be either "packaged" or "live"'),
   body('available')
     .optional()
     .isBoolean()
@@ -36,6 +42,8 @@ const menuItemValidation = [
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.log('Validation errors:', errors.array());
+    console.log('Request body:', req.body);
     return res.status(400).json({
       success: false,
       error: {
@@ -118,7 +126,7 @@ router.post('/',
   handleValidationErrors,
   async (req, res) => {
     try {
-      const { name, description, price, available, isDealOfDay, dealPrice } = req.body;
+      const { name, description, price, imageUrl, type, available, isDealOfDay, dealPrice } = req.body;
 
       // Validate deal price if isDealOfDay is true
       if (isDealOfDay && (!dealPrice || dealPrice >= price)) {
@@ -136,6 +144,8 @@ router.post('/',
         name,
         description,
         price,
+        imageUrl: imageUrl || '',
+        type,
         available: available !== undefined ? available : true
       };
 
@@ -195,14 +205,25 @@ router.put('/:id',
   authorize('staff'), 
   async (req, res) => {
     try {
-      const { name, description, price, available, isDealOfDay, dealPrice } = req.body;
+      const { name, description, price, imageUrl, type, available, isDealOfDay, dealPrice } = req.body;
 
       // Validate required fields manually (bypassing middleware for deal updates)
-      if (!name || !description || price === undefined || price < 0) {
+      if (!name || !description || price === undefined || price < 0 || !type) {
         return res.status(400).json({
           success: false,
           error: {
-            message: 'Name, description, and valid price are required',
+            message: 'Name, description, type, and valid price are required',
+            code: 'VALIDATION_ERROR'
+          }
+        });
+      }
+
+      // Validate type field
+      if (!['packaged', 'live'].includes(type)) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            message: 'Type must be either "packaged" or "live"',
             code: 'VALIDATION_ERROR'
           }
         });
@@ -236,6 +257,8 @@ router.put('/:id',
         name,
         description,
         price,
+        imageUrl: imageUrl || '',
+        type,
         available: available !== undefined ? available : menuItem.available
       };
 

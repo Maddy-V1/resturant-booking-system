@@ -34,6 +34,8 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'College Canteen API is running' });
 });
 
+
+
 // Import routes
 const authRoutes = require('./routes/auth');
 const menuRoutes = require('./routes/menu');

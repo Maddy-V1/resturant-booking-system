@@ -5,11 +5,12 @@ import { AuthProvider } from './context/AuthContext'
 import { SocketProvider } from './context/SocketContext'
 import { OrderProvider } from './context/OrderContext'
 import { ToastProvider } from './context/ToastContext'
-import Header from './components/common/Header'
+import Navbar from './components/common/Navbar'
 import LoginForm from './components/auth/LoginForm'
 import SignupForm from './components/auth/SignupForm'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import MenuPage from './pages/MenuPage'
+import CartPage from './pages/CartPage'
 import OrderTrackingPage from './pages/OrderTrackingPage'
 import AccountPage from './pages/AccountPage'
 import OrderHistoryPage from './pages/OrderHistoryPage'
@@ -50,23 +51,27 @@ function App() {
         <OrderProvider>
           <SocketProvider>
             <Router>
-          <div className="min-h-screen bg-gray-100">
-            <Header />
+          <div className="min-h-screen bg-gray-50">
+            <Navbar />
             <main>
               <Routes>
                 <Route path="/login" element={<AuthPage />} />
                 <Route path="/signup" element={<AuthPage />} />
                 <Route 
-                  path="/menu" 
+                  path="/cart" 
                   element={
                     <ProtectedRoute>
-                      <MenuPage />
+                      <CartPage />
                     </ProtectedRoute>
                   } 
                 />
                 <Route 
                   path="/order/:orderId" 
-                  element={<OrderTrackingPage />} 
+                  element={
+                    <ProtectedRoute>
+                      <OrderTrackingPage />
+                    </ProtectedRoute>
+                  } 
                 />
                 <Route 
                   path="/account" 

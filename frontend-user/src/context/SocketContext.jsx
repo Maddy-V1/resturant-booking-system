@@ -31,11 +31,15 @@ export const SocketProvider = ({ children }) => {
       return;
     }
 
-    // Initialize socket connection
+    // Initialize socket connection with authentication
+    const token = localStorage.getItem('token');
     const socketInstance = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:5001', {
       transports: ['websocket', 'polling'],
       timeout: 20000,
-      forceNew: true
+      forceNew: true,
+      auth: {
+        token: token
+      }
     });
 
     // Connection event handlers

@@ -16,9 +16,26 @@ const MenuItemSchema = new mongoose.Schema({
     required: [true, 'Please add a price'],
     min: [0, 'Price cannot be negative']
   },
+  imageUrl: {
+    type: String,
+    trim: true,
+    default: ''
+  },
   available: {
     type: Boolean,
     default: true
+  },
+  type: {
+    type: String,
+    required: [true, 'Please specify item type'],
+    enum: {
+      values: ['packaged', 'live'],
+      message: 'Type must be either packaged (no preparation time) or live (requires preparation time)'
+    }
+  },
+  cancelled: {
+    type: Boolean,
+    default: false
   },
   isDealOfDay: {
     type: Boolean,
@@ -27,7 +44,7 @@ const MenuItemSchema = new mongoose.Schema({
   dealPrice: {
     type: Number,
     validate: {
-      validator: function(value) {
+      validator: function (value) {
         // Deal price should only be required if isDealOfDay is true
         // and should be less than the regular price
         return !this.isDealOfDay || (value && value < this.price);
@@ -45,7 +62,7 @@ const MenuItemSchema = new mongoose.Schema({
 });
 
 // Virtual for calculating discount percentage
-MenuItemSchema.virtual('discountPercentage').get(function() {
+MenuItemSchema.virtual('discountPercentage').get(function () {
   if (this.isDealOfDay && this.dealPrice) {
     return Math.round(((this.price - this.dealPrice) / this.price) * 100);
   }

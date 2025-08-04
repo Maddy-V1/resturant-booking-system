@@ -96,10 +96,25 @@ class SocketHandler {
       status: orderData.status,
       paymentStatus: orderData.paymentStatus,
       updatedAt: orderData.updatedAt || new Date(),
-      orderNumber: orderData.orderNumber
+      orderNumber: orderData.orderNumber,
+      customerName: orderData.customerName,
+      items: orderData.items,
+      totalAmount: orderData.totalAmount
     });
     
-    console.log(`Broadcasted order status update to room ${roomName}:`, {
+    // Also broadcast to staff rooms for kitchen and pickup updates
+    this.io.to('staff-room').emit('order-status-updated', {
+      orderId,
+      status: orderData.status,
+      paymentStatus: orderData.paymentStatus,
+      updatedAt: orderData.updatedAt || new Date(),
+      orderNumber: orderData.orderNumber,
+      customerName: orderData.customerName,
+      items: orderData.items,
+      totalAmount: orderData.totalAmount
+    });
+    
+    console.log(`Broadcasted order status update to room ${roomName} and staff-room:`, {
       status: orderData.status,
       paymentStatus: orderData.paymentStatus
     });
@@ -152,6 +167,59 @@ class SocketHandler {
   // Method to get connected clients count for monitoring
   getConnectedClientsCount() {
     return this.io.engine.clientsCount;
+  }
+
+  // Method to broadcast when order moves to kitchen (preparing status)
+  broadcastOrderToKitchen(orderData) {
+    this.io.to('staff-room').emit('order-moved-to-kitchen', {
+      orderId: orderData._id,
+      orderNumber: orderData.orderNumber,
+      customerName: orderData.customerName,
+      items: orderData.items,
+      status: orderData.status,
+      createdAt: orderData.createdAt,
+      updatedAt: new Date()
+    });
+    
+    // Also notify the specific order room
+    this.broadcastOrderStatusUpdate(orderData._id, orderData);
+    
+    console.log(`Broadcasted order to kitchen: ${orderData.orderNumber}`);
+  }
+
+  // Method to broadcast when order moves to pickup (ready status)
+  broadcastOrderToPickup(orderData) {
+    this.io.to('staff-room').emit('order-moved-to-pickup', {
+      orderId: orderData._id,
+      orderNumber: orderData.orderNumber,
+      customerName: orderData.customerName,
+      items: orderData.items,
+      status: orderData.status,
+      totalAmount: orderData.totalAmount,
+      createdAt: orderData.createdAt,
+      updatedAt: new Date()
+    });
+    
+    // Also notify the specific order room
+    this.broadcastOrderStatusUpdate(orderData._id, orderData);
+    
+    console.log(`Broadcasted order to pickup: ${orderData.orderNumber}`);
+  }
+
+  // Method to broadcast when order is completed/delivered
+  broadcastOrderCompleted(orderData) {
+    this.io.to('staff-room').emit('order-completed', {
+      orderId: orderData._id,
+      orderNumber: orderData.orderNumber,
+      customerName: orderData.customerName,
+      status: orderData.status,
+      completedAt: new Date()
+    });
+    
+    // Also notify the specific order room
+    this.broadcastOrderStatusUpdate(orderData._id, orderData);
+    
+    console.log(`Broadcasted order completion: ${orderData.orderNumber}`);
   }
 
   // Method to get room information for debugging

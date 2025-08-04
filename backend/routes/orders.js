@@ -272,10 +272,24 @@ router.put('/:id/status', authorize('staff'), async (req, res) => {
     await order.populate('items.itemId', 'name description');
     await order.populate('userId', 'name email');
 
-    // Emit real-time order status update
+    // Emit real-time order status update with specific events
     const socketHandler = req.app.get('socketHandler');
     if (socketHandler) {
+      // Broadcast general status update
       socketHandler.broadcastOrderStatusUpdate(order._id, order);
+      
+      // Broadcast specific events based on status
+      switch (status) {
+        case 'preparing':
+          socketHandler.broadcastOrderToKitchen(order);
+          break;
+        case 'ready':
+          socketHandler.broadcastOrderToPickup(order);
+          break;
+        case 'picked_up':
+          socketHandler.broadcastOrderCompleted(order);
+          break;
+      }
     }
 
     res.status(200).json({

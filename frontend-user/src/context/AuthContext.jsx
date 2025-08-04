@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import api from '../utils/axios';
+import { authService } from '../services/authService';
 
 const AuthContext = createContext();
 
@@ -16,18 +16,15 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-
-
   // Check if user is authenticated on app load
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          const response = await api.get('/auth/verify');
-          setUser(response.data.data.user);
-        } catch (error) {
-          localStorage.removeItem('token');
+      if (authService.isAuthenticated()) {
+        const result = await authService.verifyToken();
+        if (result.success) {
+          setUser(result.data.user);
+        } else {
+          authService.logout();
         }
       }
       setLoading(false);
@@ -41,23 +38,20 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       setLoading(true);
       
-      const response = await api.post('/auth/login', {
-        email,
-        password
-      });
-
-      const { token, user: userData } = response.data.data;
+      const result = await authService.login({ email, password });
       
-      // Store token
-      localStorage.setItem('token', token);
-      
-      setUser(userData);
-      setLoading(false);
-      
-      return { success: true };
+      if (result.success) {
+        setUser(result.data.user);
+        setLoading(false);
+        return { success: true };
+      } else {
+        setLoading(false);
+        setError(result.error.message);
+        return { success: false, error: result.error.message };
+      }
     } catch (error) {
       setLoading(false);
-      const errorMessage = error.response?.data?.error?.message || 'Login failed';
+      const errorMessage = 'Login failed';
       setError(errorMessage);
       return { success: false, error: errorMessage };
     }
@@ -68,27 +62,27 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       setLoading(true);
       
-      const response = await api.post('/auth/signup', userData);
+      const result = await authService.signup(userData);
       
-      const { token, user: newUser } = response.data.data;
-      
-      // Store token
-      localStorage.setItem('token', token);
-      
-      setUser(newUser);
-      setLoading(false);
-      
-      return { success: true };
+      if (result.success) {
+        setUser(result.data.user);
+        setLoading(false);
+        return { success: true };
+      } else {
+        setLoading(false);
+        setError(result.error.message);
+        return { success: false, error: result.error.message };
+      }
     } catch (error) {
       setLoading(false);
-      const errorMessage = error.response?.data?.error?.message || 'Signup failed';
+      const errorMessage = 'Signup failed';
       setError(errorMessage);
       return { success: false, error: errorMessage };
     }
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
+    authService.logout();
     setUser(null);
     setError(null);
   };

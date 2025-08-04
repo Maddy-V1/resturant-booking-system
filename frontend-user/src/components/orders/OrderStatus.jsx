@@ -40,10 +40,7 @@ const OrderStatus = ({ status, paymentStatus, paymentMethod }) => {
 
   const getCurrentStatusMessage = () => {
     if (status === 'payment pending') {
-      if (paymentMethod === 'offline') {
-        return 'Please pay at the counter to confirm your order';
-      }
-      return 'Waiting for payment confirmation';
+      return 'Waiting for payment confirmation from gateway';
     }
     
     const statusMessages = {
@@ -72,9 +69,9 @@ const OrderStatus = ({ status, paymentStatus, paymentMethod }) => {
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold">Order Status</h2>
-        {paymentStatus === 'pending' && paymentMethod === 'offline' && (
+        {paymentStatus === 'pending' && (
           <span className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded">
-            Payment Required
+            Payment Pending
           </span>
         )}
       </div>

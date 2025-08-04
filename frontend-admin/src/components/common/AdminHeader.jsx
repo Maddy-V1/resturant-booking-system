@@ -17,10 +17,9 @@ const AdminHeader = () => {
         <nav className="flex items-center space-x-6">
           <ul className="flex space-x-4">
             <li><Link to="/" className="hover:text-gray-300">Dashboard</Link></li>
-            <li><Link to="/manual-order" className="hover:text-gray-300">Manual Order</Link></li>
             <li><Link to="/menu" className="hover:text-gray-300">Menu</Link></li>
-            <li><Link to="/orders" className="hover:text-gray-300">Order Queue</Link></li>
-            <li><Link to="/payments" className="hover:text-gray-300">Payments</Link></li>
+            <li><Link to="/kitchen" className="hover:text-gray-300">Kitchen</Link></li>
+            <li><Link to="/pickup" className="hover:text-gray-300">Pickup</Link></li>
           </ul>
           
           {user && (

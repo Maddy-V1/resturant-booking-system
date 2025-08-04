@@ -6,6 +6,8 @@ const MenuItemForm = ({ item, onSuccess, onCancel }) => {
     name: '',
     description: '',
     price: '',
+    imageUrl: '',
+    type: 'packaged',
     available: true
   });
   const [loading, setLoading] = useState(false);
@@ -19,6 +21,8 @@ const MenuItemForm = ({ item, onSuccess, onCancel }) => {
         name: item.name || '',
         description: item.description || '',
         price: item.price?.toString() || '',
+        imageUrl: item.imageUrl || '',
+        type: item.type || 'packaged',
         available: item.available !== undefined ? item.available : true
       });
     }
@@ -49,14 +53,20 @@ const MenuItemForm = ({ item, onSuccess, onCancel }) => {
       setError('Valid price is required');
       return;
     }
+    if (!formData.type) {
+      setError('Item type is required');
+      return;
+    }
 
     try {
       setLoading(true);
-      
+
       const submitData = {
         name: formData.name.trim(),
         description: formData.description.trim(),
         price: parseFloat(formData.price),
+        imageUrl: formData.imageUrl.trim(),
+        type: formData.type,
         available: formData.available
       };
 
@@ -153,6 +163,43 @@ const MenuItemForm = ({ item, onSuccess, onCancel }) => {
             className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
             placeholder="Enter price"
           />
+        </div>
+
+        <div>
+          <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700">
+            Image URL
+          </label>
+          <input
+            type="url"
+            id="imageUrl"
+            name="imageUrl"
+            value={formData.imageUrl}
+            onChange={handleChange}
+            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            placeholder="Enter image URL (optional)"
+          />
+          <p className="mt-1 text-xs text-gray-500">
+            Optional: Add an image URL to display the item photo
+          </p>
+        </div>
+
+        <div>
+          <label htmlFor="type" className="block text-sm font-medium text-gray-700">
+            Item Type *
+          </label>
+          <select
+            id="type"
+            name="type"
+            value={formData.type}
+            onChange={handleChange}
+            className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="packaged">Packaged Food (Ready to serve)</option>
+            <option value="live">Live Food (Requires preparation)</option>
+          </select>
+          <p className="mt-1 text-xs text-gray-500">
+            Packaged items are served immediately, live items require cooking time
+          </p>
         </div>
 
         <div className="flex items-center">
