@@ -251,13 +251,6 @@ npm test                   # Run admin app tests
 - **student** - Can place orders, view history
 - **staff** - Full admin access, can manage everything
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 👥 Authors
-
-- **Your Name** - *Initial work* - [YourGitHub](https://github.com/yourusername)
 
 ## 🙏 Acknowledgments
 
@@ -267,7 +260,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-For support, email your-email@example.com or create an issue in this repository.
+For support, email madhavvarshney1879@gmail.com or create an issue in this repository.
 
 ---
 
