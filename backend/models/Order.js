@@ -103,6 +103,11 @@ const OrderSchema = new mongoose.Schema({
     enum: ['pending', 'claimed', 'rejected'],
     default: 'pending',
     required: false
+  },
+  otp: {
+    type: String,
+    required: true,
+    length: 4
   }
 });
 
@@ -112,7 +117,7 @@ OrderSchema.pre('save', function(next) {
   next();
 });
 
-// Generate a unique order number before validation
+// Generate a unique order number and OTP before validation
 OrderSchema.pre('validate', async function(next) {
   // Only generate order number if it's a new document and orderNumber is not set
   if (this.isNew && !this.orderNumber) {
@@ -134,6 +139,12 @@ OrderSchema.pre('validate', async function(next) {
       return next(error);
     }
   }
+
+  // Generate OTP if it's a new document and OTP is not set
+  if (this.isNew && !this.otp) {
+    this.otp = Math.floor(1000 + Math.random() * 9000).toString(); // Generate random 4-digit number
+  }
+  
   next();
 });
 

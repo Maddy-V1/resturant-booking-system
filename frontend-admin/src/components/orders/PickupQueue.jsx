@@ -14,7 +14,8 @@ import {
   CheckCircle,
   Filter,
   ExternalLink,
-  Package
+  Package,
+  Search
 } from 'lucide-react';
 import api from '../../utils/axios';
 import io from 'socket.io-client';
@@ -106,6 +107,27 @@ const OrderDetailsModal = ({ order, isOpen, onClose }) => {
             </div>
           </div>
 
+          {/* OTP Information */}
+          {order.otp && (
+            <div className="bg-blue-50 rounded-xl p-4">
+              <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center">
+                <div className="bg-blue-100 rounded-full p-2 mr-3">
+                  <span className="text-blue-600 font-bold text-sm">🔐</span>
+                </div>
+                Pickup Verification
+              </h3>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-blue-800 font-medium text-sm">4-Digit OTP</p>
+                  <p className="text-blue-600 text-xs">Customer must provide this OTP</p>
+                </div>
+                <div className="bg-blue-600 text-white px-4 py-2 rounded-lg">
+                  <span className="text-xl font-bold tracking-wider">{order.otp}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Items Details */}
           <div>
             <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center">
@@ -163,6 +185,11 @@ const PickupQueue = () => {
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [socketConnected, setSocketConnected] = useState(false);
   const [showManualOrderModal, setShowManualOrderModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [selectedOrderForOtp, setSelectedOrderForOtp] = useState(null);
+  const [otpInput, setOtpInput] = useState('');
+  const [otpError, setOtpError] = useState('');
 
   const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5001';
 
@@ -264,6 +291,48 @@ const PickupQueue = () => {
     }
   };
 
+  const handleMarkAsDelivered = (order) => {
+    setSelectedOrderForOtp(order);
+    setOtpInput('');
+    setOtpError('');
+    setShowOtpModal(true);
+  };
+
+  const verifyOtpAndMarkDelivered = async () => {
+    if (!selectedOrderForOtp) return;
+    
+    if (otpInput.length !== 4) {
+      setOtpError('Please enter a 4-digit OTP');
+      return;
+    }
+
+    if (otpInput !== selectedOrderForOtp.otp) {
+      setOtpError('Invalid OTP. Please check and try again.');
+      return;
+    }
+
+    try {
+      setMarkingDelivered(selectedOrderForOtp._id);
+      await api.put(`/orders/${selectedOrderForOtp._id}/status`, {
+        status: 'picked_up'
+      });
+      
+      await fetchOrders(false);
+      
+      console.log(`Order ${selectedOrderForOtp.orderNumber} marked as delivered with OTP verification`);
+      setShowOtpModal(false);
+      setSelectedOrderForOtp(null);
+      setOtpInput('');
+      setOtpError('');
+    } catch (error) {
+      console.error('Error marking order as delivered:', error);
+      const errorMessage = error.response?.data?.error?.message || error.response?.data?.message || error.message;
+      setError(`Failed to mark order as delivered: ${errorMessage}`);
+    } finally {
+      setMarkingDelivered(null);
+    }
+  };
+
   const markAsDelivered = async (orderId) => {
     try {
       setMarkingDelivered(orderId);
@@ -286,6 +355,16 @@ const PickupQueue = () => {
 
   const getFilteredOrders = () => {
     let filtered = orders;
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(order => 
+        order.customerName.toLowerCase().includes(query) ||
+        order.customerWhatsapp.toLowerCase().includes(query) ||
+        order.orderNumber.toLowerCase().includes(query)
+      );
+    }
 
     // Apply sorting
     filtered.sort((a, b) => {
@@ -349,6 +428,26 @@ const PickupQueue = () => {
               </div>
               
               <div className="flex items-center space-x-3">
+                {/* Search Bar */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <input
+                    type="text"
+                    placeholder="Search by name, phone, or order ID..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200 w-64"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+
                 {/* Filter Dropdown */}
                 <div className="relative">
                   <button
@@ -457,10 +556,23 @@ const PickupQueue = () => {
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="h-8 w-8 text-gray-400" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No orders ready for pickup</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              {searchQuery.trim() ? 'No orders found' : 'No orders ready for pickup'}
+            </h3>
             <p className="text-gray-500">
-              Orders will appear here when they are ready for customer pickup.
+              {searchQuery.trim() 
+                ? `No orders found for "${searchQuery}". Try a different search term.`
+                : 'Orders will appear here when they are ready for customer pickup.'
+              }
             </p>
+            {searchQuery.trim() && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
+              >
+                Clear Search
+              </button>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
@@ -521,7 +633,7 @@ const PickupQueue = () => {
                 {/* Mark as Delivered Button */}
                 <div className="px-4 py-3 bg-gray-50 border-t border-gray-200">
                   <button
-                    onClick={() => markAsDelivered(order._id)}
+                    onClick={() => handleMarkAsDelivered(order)}
                     disabled={markingDelivered === order._id}
                     className="w-full bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors duration-200 flex items-center justify-center disabled:opacity-50"
                   >
@@ -568,6 +680,94 @@ const PickupQueue = () => {
             fetchOrders(false); // Refresh orders list
           }}
         />
+
+        {/* OTP Verification Modal */}
+        {showOtpModal && selectedOrderForOtp && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+              {/* Modal Header */}
+              <div className="px-6 py-4 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-900">Verify Pickup OTP</h2>
+                    <p className="text-sm text-gray-600">Order #{selectedOrderForOtp.orderNumber}</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setShowOtpModal(false);
+                      setSelectedOrderForOtp(null);
+                      setOtpInput('');
+                      setOtpError('');
+                    }}
+                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-6">
+                {/* Customer Info */}
+                <div className="bg-blue-50 rounded-lg p-4 mb-6">
+                  <div className="flex items-center mb-2">
+                    <User className="h-5 w-5 text-blue-600 mr-2" />
+                    <span className="font-medium text-blue-900">Customer Details</span>
+                  </div>
+                  <p className="text-blue-800 font-medium">{selectedOrderForOtp.customerName}</p>
+                  <p className="text-blue-600 text-sm">{selectedOrderForOtp.customerWhatsapp}</p>
+                </div>
+
+                {/* OTP Input */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Enter 4-digit OTP from customer
+                  </label>
+                  <input
+                    type="text"
+                    value={otpInput}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '').slice(0, 4);
+                      setOtpInput(value);
+                      setOtpError('');
+                    }}
+                    placeholder="0000"
+                    className="w-full px-4 py-3 text-center text-2xl font-bold tracking-widest border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                    maxLength="4"
+                    autoFocus
+                  />
+                  {otpError && (
+                    <p className="mt-2 text-sm text-red-600">{otpError}</p>
+                  )}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex space-x-3">
+                  <button
+                    onClick={() => {
+                      setShowOtpModal(false);
+                      setSelectedOrderForOtp(null);
+                      setOtpInput('');
+                      setOtpError('');
+                    }}
+                    className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200 font-medium"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={verifyOtpAndMarkDelivered}
+                    disabled={otpInput.length !== 4 || markingDelivered === selectedOrderForOtp._id}
+                    className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 font-medium disabled:opacity-50 flex items-center justify-center"
+                  >
+                    {markingDelivered === selectedOrderForOtp._id ? (
+                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                    ) : null}
+                    Verify & Mark Delivered
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

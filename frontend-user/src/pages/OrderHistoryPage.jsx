@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Package, Filter, Calendar } from 'lucide-react';
+import { ArrowLeft, Package, Filter, Calendar, X } from 'lucide-react';
 import OrderCard from '../components/orders/OrderCard';
 import StatusBadge from '../components/common/StatusBadge';
 
@@ -9,6 +9,8 @@ const OrderHistoryPage = () => {
   const [filteredOrders, setFilteredOrders] = useState([]);
   const [statusFilter, setStatusFilter] = useState('all');
   const [loading, setLoading] = useState(true);
+  const [dateFilter, setDateFilter] = useState({ from: '', to: '' });
+  const [showDateFilter, setShowDateFilter] = useState(false);
 
   // Fetch orders from API
   useEffect(() => {
@@ -128,14 +130,38 @@ const OrderHistoryPage = () => {
     });
   };
 
-  // Filter orders based on status
+  // Filter orders based on status and date
   useEffect(() => {
-    if (statusFilter === 'all') {
-      setFilteredOrders(orders);
-    } else {
-      setFilteredOrders(orders.filter(order => order.status === statusFilter));
+    let filtered = orders;
+
+    // Apply status filter
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(order => order.status === statusFilter);
     }
-  }, [orders, statusFilter]);
+
+    // Apply date filter
+    if (dateFilter.from || dateFilter.to) {
+      filtered = filtered.filter(order => {
+        const orderDate = new Date(order.createdAt);
+        const fromDate = dateFilter.from ? new Date(dateFilter.from) : null;
+        const toDate = dateFilter.to ? new Date(dateFilter.to) : null;
+
+        if (fromDate && toDate) {
+          // Both dates provided - check if order is within range
+          return orderDate >= fromDate && orderDate <= toDate;
+        } else if (fromDate) {
+          // Only from date provided - check if order is after from date
+          return orderDate >= fromDate;
+        } else if (toDate) {
+          // Only to date provided - check if order is before to date
+          return orderDate <= toDate;
+        }
+        return true;
+      });
+    }
+
+    setFilteredOrders(filtered);
+  }, [orders, statusFilter, dateFilter]);
 
   if (loading) {
     return (
@@ -166,8 +192,79 @@ const OrderHistoryPage = () => {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Account
           </Link>
-          <h1 className="text-xl font-bold text-gray-900">Order History</h1>
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-bold text-gray-900">Order History</h1>
+            <button
+              onClick={() => setShowDateFilter(!showDateFilter)}
+              className="inline-flex items-center px-3 py-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition-colors duration-200"
+            >
+              <Calendar className="h-4 w-4 mr-2" />
+              Filter by Date
+            </button>
+          </div>
         </div>
+
+        {/* Date Filter Panel */}
+        {showDateFilter && (
+          <div className="px-4 pb-4 border-t border-gray-200 bg-gray-50">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-medium text-gray-700">Filter by Date Range</h3>
+                <button
+                  onClick={() => setShowDateFilter(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">From Date</label>
+                  <input
+                    type="date"
+                    value={dateFilter.from}
+                    onChange={(e) => setDateFilter(prev => ({ ...prev, from: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">To Date</label>
+                  <input
+                    type="date"
+                    value={dateFilter.to}
+                    onChange={(e) => setDateFilter(prev => ({ ...prev, to: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none text-sm"
+                  />
+                </div>
+              </div>
+              
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => setDateFilter({ from: '', to: '' })}
+                  className="flex-1 px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200 text-sm font-medium"
+                >
+                  Clear Dates
+                </button>
+                <button
+                  onClick={() => setShowDateFilter(false)}
+                  className="flex-1 px-3 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors duration-200 text-sm font-medium"
+                >
+                  Apply Filter
+                </button>
+              </div>
+              
+              {(dateFilter.from || dateFilter.to) && (
+                <div className="text-xs text-gray-600 bg-white p-2 rounded border">
+                  <strong>Active filter:</strong> 
+                  {dateFilter.from && ` From ${new Date(dateFilter.from).toLocaleDateString()}`}
+                  {dateFilter.from && dateFilter.to && ' and'}
+                  {dateFilter.to && ` To ${new Date(dateFilter.to).toLocaleDateString()}`}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
 
@@ -200,21 +297,28 @@ const OrderHistoryPage = () => {
               <Package className="h-8 w-8 text-gray-400" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              {statusFilter === 'all' ? 'No orders found' : `No ${statusFilter} orders`}
+              {statusFilter === 'all' && !dateFilter.from && !dateFilter.to 
+                ? 'No orders found' 
+                : `No orders found${statusFilter !== 'all' ? ` with status "${statusFilter}"` : ''}${dateFilter.from || dateFilter.to ? ' in the selected date range' : ''}`
+              }
             </h3>
             <p className="text-gray-600 mb-6 text-sm">
-              {statusFilter === 'all' 
+              {statusFilter === 'all' && !dateFilter.from && !dateFilter.to
                 ? "You haven't placed any orders yet."
-                : `You don't have any ${statusFilter} orders.`
+                : `No orders match your current filters. Try adjusting your search criteria.`
               }
             </p>
             <div className="flex flex-col space-y-3">
-              {statusFilter !== 'all' && (
+              {(statusFilter !== 'all' || dateFilter.from || dateFilter.to) && (
                 <button
-                  onClick={() => setStatusFilter('all')}
+                  onClick={() => {
+                    setStatusFilter('all');
+                    setDateFilter({ from: '', to: '' });
+                    setShowDateFilter(false);
+                  }}
                   className="px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors duration-200"
                 >
-                  View All Orders
+                  Clear All Filters
                 </button>
               )}
               <Link

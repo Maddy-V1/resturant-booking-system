@@ -10,15 +10,20 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: process.env.CORS_ORIGIN?.split(',') || ["http://localhost:3000", "http://localhost:5173"],
-    methods: ["GET", "POST"]
+    origin: process.env.NODE_ENV === 'development' 
+      ? true // Allow all origins in development
+      : process.env.CORS_ORIGIN?.split(',') || ["http://localhost:3000", "http://localhost:5173"],
+    methods: ["GET", "POST"],
+    credentials: true
   }
 });
 
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.CORS_ORIGIN?.split(',') || ["http://localhost:3000", "http://localhost:5173"],
+  origin: process.env.NODE_ENV === 'development' 
+    ? true // Allow all origins in development
+    : process.env.CORS_ORIGIN?.split(',') || ["http://localhost:3000", "http://localhost:5173"],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
@@ -62,8 +67,10 @@ const PORT = process.env.PORT || 5001;
 // Connect to MongoDB and start server only if not in test environment
 if (process.env.NODE_ENV !== 'test') {
   connectDB().then(() => {
-    server.listen(PORT, () => {
+    server.listen(PORT, '0.0.0.0', () => {
       console.log(`Server running on port ${PORT}`);
+      console.log(`Local: http://localhost:${PORT}`);
+      console.log(`Network: http://0.0.0.0:${PORT}`);
     });
   });
 }

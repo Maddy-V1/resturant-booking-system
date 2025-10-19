@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Minus, Star, Clock, Flame } from 'lucide-react';
+import { Plus, Minus, Star, Clock, Flame, Sparkles } from 'lucide-react';
 import { useOrder } from '../../context/OrderContext';
 
 const MenuItemCard = ({ item }) => {
@@ -104,14 +104,22 @@ const MenuItemCard = ({ item }) => {
 
           {/* Bottom badges row */}
           <div className="absolute bottom-2 left-2 right-2 flex justify-between items-end">
-            {item.isDealOfDay && (
-              <div className="bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center space-x-1">
-                <Flame className="h-3 w-3" />
-                <span>DEAL</span>
-              </div>
-            )}
+            <div className="flex flex-col space-y-1">
+              {item.isDealOfDay && (
+                <div className="bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center space-x-1">
+                  <Flame className="h-3 w-3" />
+                  <span>DEAL</span>
+                </div>
+              )}
+              {item.sometimes && (
+                <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center space-x-1">
+                  <Sparkles className="h-3 w-3" />
+                  <span>SOMETIMES</span>
+                </div>
+              )}
+            </div>
             {item.originalPrice && discountPercentage > 0 && (
-              <div className="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full ml-auto">
+              <div className="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">
                 {discountPercentage}% OFF
               </div>
             )}

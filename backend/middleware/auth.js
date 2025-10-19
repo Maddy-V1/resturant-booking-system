@@ -32,7 +32,7 @@ const protect = async (req, res, next) => {
       next();
     } catch (error) {
       console.error('Token verification error:', error.message);
-      
+
       let errorMessage = 'Not authorized to access this route';
       let errorCode = 'INVALID_TOKEN';
 

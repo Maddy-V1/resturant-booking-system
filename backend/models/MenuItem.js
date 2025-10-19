@@ -33,7 +33,7 @@ const MenuItemSchema = new mongoose.Schema({
       message: 'Type must be either packaged (no preparation time) or live (requires preparation time)'
     }
   },
-  cancelled: {
+  sometimes: {
     type: Boolean,
     default: false
   },

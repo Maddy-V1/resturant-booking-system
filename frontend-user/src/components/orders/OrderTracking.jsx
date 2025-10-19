@@ -103,7 +103,8 @@ const OrderTracking = () => {
           })),
           total: result.data.totalAmount,
           paymentMethod: result.data.paymentMethod,
-          pickupLocation: 'Main Canteen'
+          pickupLocation: 'Main Canteen',
+          otp: result.data.otp
         };
         
         setOrder(transformedOrder);
@@ -273,6 +274,40 @@ const OrderTracking = () => {
               </div>
             </div>
           </div>
+
+          {/* OTP Display */}
+          {order.otp && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="bg-green-100 rounded-full p-2 mr-3">
+                    <span className="text-green-600 font-bold text-sm">🔐</span>
+                  </div>
+                  <div>
+                    <p className="text-green-800 font-medium text-sm">Pickup OTP</p>
+                    <p className="text-green-600 text-xs">Show this to pickup counter</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  {order.status === 'ready' ? (
+                    <div className="bg-green-600 text-white px-3 py-1 rounded-lg">
+                      <span className="text-lg font-bold tracking-wider">{order.otp}</span>
+                    </div>
+                  ) : (
+                    <div className="bg-gray-300 text-gray-500 px-3 py-1 rounded-lg">
+                      <span className="text-lg font-bold tracking-wider blur-sm select-none">••••</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="mt-2 text-xs text-green-600">
+                {order.status === 'ready' 
+                  ? 'OTP is now visible - show this to pickup counter' 
+                  : 'OTP will be revealed when order is ready for pickup'
+                }
+              </div>
+            </div>
+          )}
 
           {/* Order Time */}
           <div className="text-center">
