@@ -1,8 +1,28 @@
 import axios from 'axios';
 
+const resolveBaseURL = () => {
+  const url =
+    import.meta.env.VITE_API_URL ||
+    import.meta.env.VITE_API_BASE_URL ||
+    (import.meta.env.VITE_BACKEND_URL
+      ? `${import.meta.env.VITE_BACKEND_URL.replace(/\/$/, '')}/api`
+      : null);
+
+  const browserBase =
+    typeof window !== 'undefined'
+      ? `${window.location.origin.replace(/\/$/, '')}/api`
+      : null;
+
+  return (
+    url ||
+    browserBase ||
+    'http://localhost:5001/api'
+  );
+};
+
 // Create axios instance with base configuration
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5001/api',
+  baseURL: resolveBaseURL(),
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
