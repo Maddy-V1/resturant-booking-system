@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
+const MAX_FAILED_ATTEMPTS = parseInt(process.env.AUTH_MAX_LOGIN_ATTEMPTS, 10) || 5;
+const LOCK_DURATION_MINUTES =
+  parseInt(process.env.AUTH_LOCK_DURATION_MINUTES, 10) || 15;
+const LOCK_DURATION_MS = LOCK_DURATION_MINUTES * 60 * 1000;
+
 const UserSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -39,6 +44,33 @@ const UserSchema = new mongoose.Schema({
     enum: ['student', 'staff'],
     default: 'student'
   },
+  failedLoginAttempts: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  lastFailedLoginAt: {
+    type: Date
+  },
+  lockUntil: {
+    type: Date
+  },
+  accountStatus: {
+    type: String,
+    enum: ['active', 'locked'],
+    default: 'active'
+  },
+  lastLoginAt: {
+    type: Date
+  },
+  lastLoginIp: {
+    type: String,
+    maxlength: 64
+  },
+  lastLoginUserAgent: {
+    type: String,
+    maxlength: 255
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -48,7 +80,7 @@ const UserSchema = new mongoose.Schema({
 // Encrypt password using bcrypt
 UserSchema.pre('save', async function(next) {
   if (!this.isModified('password')) {
-    next();
+    return next();
   }
 
   const salt = await bcrypt.genSalt(12); // Increased from 10 to 12 for better security
@@ -58,6 +90,50 @@ UserSchema.pre('save', async function(next) {
 // Match user entered password to hashed password in database
 UserSchema.methods.matchPassword = async function(enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
+};
+
+UserSchema.methods.isAccountLocked = function() {
+  return Boolean(this.lockUntil && this.lockUntil > Date.now());
+};
+
+UserSchema.methods.unlockIfExpired = async function() {
+  if (this.lockUntil && this.lockUntil <= Date.now()) {
+    this.lockUntil = undefined;
+    this.accountStatus = 'active';
+    this.failedLoginAttempts = 0;
+    await this.save({ validateBeforeSave: false });
+  }
+};
+
+UserSchema.methods.recordFailedLoginAttempt = async function() {
+  this.failedLoginAttempts += 1;
+  this.lastFailedLoginAt = new Date();
+
+  if (this.failedLoginAttempts >= MAX_FAILED_ATTEMPTS) {
+    this.accountStatus = 'locked';
+    this.lockUntil = new Date(Date.now() + LOCK_DURATION_MS);
+    this.failedLoginAttempts = 0;
+  }
+
+  await this.save({ validateBeforeSave: false });
+  return this.lockUntil;
+};
+
+UserSchema.methods.resetLoginState = async function(metadata = {}) {
+  this.failedLoginAttempts = 0;
+  this.lockUntil = undefined;
+  this.accountStatus = 'active';
+  this.lastLoginAt = new Date();
+
+  if (metadata.ip) {
+    this.lastLoginIp = metadata.ip.slice(0, 64);
+  }
+
+  if (metadata.userAgent) {
+    this.lastLoginUserAgent = metadata.userAgent.slice(0, 255);
+  }
+
+  await this.save({ validateBeforeSave: false });
 };
 
 // Method to get user's full name

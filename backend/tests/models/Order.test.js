@@ -34,7 +34,7 @@ describe('Order Model Test', () => {
       name: 'Test User',
       email: 'test@example.com',
       whatsapp: '+1234567890',
-      password: 'password123'
+      password: 'Password123'
     });
 
     testMenuItem = await MenuItem.create({

@@ -4,6 +4,7 @@ import MenuItemCard from '../components/menu/MenuItemCard';
 import SwiggyFloatingCart from '../components/cart/SwiggyFloatingCart';
 import { useOrder } from '../context/OrderContext';
 import { menuService } from '../services/menuService';
+import AuthRequiredOverlay from '../components/auth/AuthRequiredOverlay';
 
 const MenuPage = () => {
   const [menuItems, setMenuItems] = useState([]);

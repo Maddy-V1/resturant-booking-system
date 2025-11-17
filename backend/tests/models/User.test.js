@@ -27,7 +27,7 @@ describe('User Model Test', () => {
       name: 'Test User',
       email: 'test@example.com',
       whatsapp: '+1234567890',
-      password: 'password123',
+      password: 'Password123',
       role: 'student'
     });
     
@@ -40,7 +40,7 @@ describe('User Model Test', () => {
     expect(savedUser.whatsapp).toBe('+1234567890');
     expect(savedUser.role).toBe('student');
     // Password should be hashed, not the original value
-    expect(savedUser.password).not.toBe('password123');
+    expect(savedUser.password).not.toBe('Password123');
   });
 
   // Test required fields
@@ -49,7 +49,7 @@ describe('User Model Test', () => {
       name: 'Test User',
       // email is missing
       whatsapp: '+1234567890',
-      password: 'password123'
+      password: 'Password123'
     });
     
     let err;
@@ -69,7 +69,7 @@ describe('User Model Test', () => {
       name: 'Test User',
       email: 'invalid-email',
       whatsapp: '+1234567890',
-      password: 'password123'
+      password: 'Password123'
     });
     
     let err;
@@ -89,7 +89,7 @@ describe('User Model Test', () => {
       name: 'Test User',
       email: 'test@example.com',
       whatsapp: 'not-a-number',
-      password: 'password123'
+      password: 'Password123'
     });
     
     let err;
@@ -109,16 +109,16 @@ describe('User Model Test', () => {
       name: 'Test User',
       email: 'test@example.com',
       whatsapp: '+1234567890',
-      password: 'password123'
+      password: 'Password123'
     });
     
     await user.save();
     
     // Password should be hashed
-    expect(user.password).not.toBe('password123');
+    expect(user.password).not.toBe('Password123');
     
     // Should be able to verify the password
-    const isMatch = await user.matchPassword('password123');
+    const isMatch = await user.matchPassword('Password123');
     expect(isMatch).toBe(true);
   });
 
@@ -129,7 +129,7 @@ describe('User Model Test', () => {
       name: 'First User',
       email: 'duplicate@example.com',
       whatsapp: '+1234567890',
-      password: 'password123'
+      password: 'Password123'
     });
     await firstUser.save();
     
@@ -138,7 +138,7 @@ describe('User Model Test', () => {
       name: 'Second User',
       email: 'duplicate@example.com', // Same email
       whatsapp: '+0987654321',
-      password: 'password456'
+      password: 'Password456'
     });
     
     let err;
@@ -159,7 +159,7 @@ describe('User Model Test', () => {
       name: 'Test User',
       email: 'test@example.com',
       whatsapp: '+1234567890',
-      password: 'password123',
+      password: 'Password123',
       role: 'invalid-role' // Not in enum
     });
     

@@ -15,6 +15,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [errorDetails, setErrorDetails] = useState(null);
 
   // Check if user is authenticated on app load
   useEffect(() => {
@@ -33,12 +34,13 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (email, password, options = {}) => {
     try {
       setError(null);
+      setErrorDetails(null);
       setLoading(true);
       
-      const result = await authService.login({ email, password });
+      const result = await authService.login({ email, password }, options);
       
       if (result.success) {
         setUser(result.data.user);
@@ -47,22 +49,25 @@ export const AuthProvider = ({ children }) => {
       } else {
         setLoading(false);
         setError(result.error.message);
-        return { success: false, error: result.error.message };
+        setErrorDetails(result.error);
+        return { success: false, error: result.error };
       }
     } catch (error) {
       setLoading(false);
       const errorMessage = 'Login failed';
       setError(errorMessage);
-      return { success: false, error: errorMessage };
+      setErrorDetails({ message: errorMessage, code: 'LOGIN_ERROR' });
+      return { success: false, error: { message: errorMessage } };
     }
   };
 
-  const signup = async (userData) => {
+  const signup = async (userData, options = {}) => {
     try {
       setError(null);
+      setErrorDetails(null);
       setLoading(true);
       
-      const result = await authService.signup(userData);
+      const result = await authService.signup(userData, options);
       
       if (result.success) {
         setUser(result.data.user);
@@ -71,13 +76,15 @@ export const AuthProvider = ({ children }) => {
       } else {
         setLoading(false);
         setError(result.error.message);
-        return { success: false, error: result.error.message };
+        setErrorDetails(result.error);
+        return { success: false, error: result.error };
       }
     } catch (error) {
       setLoading(false);
       const errorMessage = 'Signup failed';
       setError(errorMessage);
-      return { success: false, error: errorMessage };
+      setErrorDetails({ message: errorMessage, code: 'SIGNUP_ERROR' });
+      return { success: false, error: { message: errorMessage } };
     }
   };
 
@@ -85,16 +92,19 @@ export const AuthProvider = ({ children }) => {
     authService.logout();
     setUser(null);
     setError(null);
+    setErrorDetails(null);
   };
 
   const clearError = () => {
     setError(null);
+    setErrorDetails(null);
   };
 
   const value = {
     user,
     loading,
     error,
+    errorDetails,
     login,
     signup,
     logout,

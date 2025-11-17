@@ -22,6 +22,7 @@ describe('LoginForm', () => {
     mockUseAuth.mockReturnValue({
       login: mockLogin,
       error: null,
+      errorDetails: null,
       clearError: mockClearError,
       loading: false
     });
@@ -122,7 +123,11 @@ describe('LoginForm', () => {
     fireEvent.click(submitButton);
 
     await waitFor(() => {
-      expect(mockLogin).toHaveBeenCalledWith('test@example.com', 'password123');
+      expect(mockLogin).toHaveBeenCalledWith(
+        'test@example.com',
+        'password123',
+        { remember: true }
+      );
       expect(mockOnSuccess).toHaveBeenCalled();
     });
   });
@@ -132,6 +137,7 @@ describe('LoginForm', () => {
     mockUseAuth.mockReturnValue({
       login: mockLogin,
       error: errorMessage,
+      errorDetails: { message: errorMessage, code: 'INVALID_CREDENTIALS' },
       clearError: mockClearError,
       loading: false
     });
@@ -150,6 +156,7 @@ describe('LoginForm', () => {
     mockUseAuth.mockReturnValue({
       login: mockLogin,
       error: null,
+      errorDetails: null,
       clearError: mockClearError,
       loading: true
     });
@@ -202,5 +209,35 @@ describe('LoginForm', () => {
     fireEvent.click(signupLink);
 
     expect(mockOnSwitchToSignup).toHaveBeenCalled();
+  });
+
+  it('should allow toggling remember me preference', async () => {
+    mockLogin.mockResolvedValue({ success: true });
+
+    render(
+      <LoginForm
+        onSuccess={mockOnSuccess}
+        onSwitchToSignup={mockOnSwitchToSignup}
+      />
+    );
+
+    const rememberCheckbox = screen.getByLabelText('Keep me signed in');
+    fireEvent.click(rememberCheckbox);
+
+    const emailInput = screen.getByLabelText('Email Address');
+    const passwordInput = screen.getByLabelText('Password');
+    const submitButton = screen.getByRole('button', { name: 'Sign In' });
+
+    fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'password123' } });
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(mockLogin).toHaveBeenCalledWith(
+        'test@example.com',
+        'password123',
+        { remember: false }
+      );
+    });
   });
 });

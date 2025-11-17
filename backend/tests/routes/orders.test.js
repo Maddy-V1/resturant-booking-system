@@ -17,7 +17,7 @@ describe('Order Routes', () => {
     const user = await User.create({
       name: 'Test User',
       email: 'testuser@example.com',
-      password: 'password123',
+      password: 'Password123',
       whatsapp: '+1234567890',
       role: 'student'
     });
@@ -28,7 +28,7 @@ describe('Order Routes', () => {
     const staff = await User.create({
       name: 'Test Staff',
       email: 'teststaff@example.com',
-      password: 'password123',
+      password: 'Password123',
       whatsapp: '+1234567891',
       role: 'staff'
     });

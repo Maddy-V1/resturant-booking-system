@@ -8,14 +8,21 @@ import { AuthProvider, useAuth } from '../context/AuthContext';
 vi.mock('axios');
 const mockedAxios = vi.mocked(axios);
 
-// Mock localStorage
+// Mock storage
 const localStorageMock = {
   getItem: vi.fn(),
   setItem: vi.fn(),
   removeItem: vi.fn(),
-  clear: vi.fn(),
+  clear: vi.fn()
+};
+const sessionStorageMock = {
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn()
 };
 global.localStorage = localStorageMock;
+global.sessionStorage = sessionStorageMock;
 
 // Test component to access auth context
 const TestComponent = () => {
@@ -51,7 +58,7 @@ describe('AuthContext', () => {
   });
 
   it('should provide initial auth state', async () => {
-    mockedAxios.get.mockResolvedValue({ data: { user: null } });
+    mockedAxios.get.mockResolvedValue({ data: { success: true, data: { user: null } } });
 
     render(
       <AuthProvider>
@@ -72,7 +79,7 @@ describe('AuthContext', () => {
     const mockToken = 'mock-jwt-token';
 
     mockedAxios.post.mockResolvedValue({
-      data: { token: mockToken, user: mockUser }
+      data: { success: true, data: { token: mockToken, user: mockUser } }
     });
 
     render(
@@ -129,7 +136,7 @@ describe('AuthContext', () => {
     const mockToken = 'mock-jwt-token';
 
     mockedAxios.post.mockResolvedValue({
-      data: { token: mockToken, user: mockUser }
+      data: { success: true, data: { token: mockToken, user: mockUser } }
     });
 
     render(
@@ -159,8 +166,10 @@ describe('AuthContext', () => {
     const mockToken = 'mock-jwt-token';
 
     // Setup initial authenticated state
-    localStorageMock.getItem.mockReturnValue(mockToken);
-    mockedAxios.get.mockResolvedValue({ data: { user: mockUser } });
+    localStorageMock.getItem.mockImplementation((key) =>
+      key === 'token' ? mockToken : null
+    );
+    mockedAxios.get.mockResolvedValue({ data: { success: true, data: { user: mockUser } } });
 
     render(
       <AuthProvider>
@@ -185,8 +194,10 @@ describe('AuthContext', () => {
     const mockUser = { id: '1', name: 'Test User', email: 'test@example.com' };
     const mockToken = 'mock-jwt-token';
 
-    localStorageMock.getItem.mockReturnValue(mockToken);
-    mockedAxios.get.mockResolvedValue({ data: { user: mockUser } });
+    localStorageMock.getItem.mockImplementation((key) =>
+      key === 'token' ? mockToken : null
+    );
+    mockedAxios.get.mockResolvedValue({ data: { success: true, data: { user: mockUser } } });
 
     render(
       <AuthProvider>
@@ -205,7 +216,9 @@ describe('AuthContext', () => {
   it('should handle token verification failure', async () => {
     const mockToken = 'invalid-token';
 
-    localStorageMock.getItem.mockReturnValue(mockToken);
+    localStorageMock.getItem.mockImplementation((key) =>
+      key === 'token' ? mockToken : null
+    );
     mockedAxios.get.mockRejectedValue({ response: { status: 401 } });
 
     render(

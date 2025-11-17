@@ -21,7 +21,7 @@ describe('Menu Routes', () => {
       name: 'Staff User',
       email: 'staff@test.com',
       whatsapp: '1234567890',
-      password: 'password123', // This will be hashed by the pre-save middleware
+      password: 'Password123', // This will be hashed by the pre-save middleware
       role: 'staff'
     });
 
@@ -29,7 +29,7 @@ describe('Menu Routes', () => {
       name: 'Student User',
       email: 'student@test.com',
       whatsapp: '0987654321',
-      password: 'password123', // This will be hashed by the pre-save middleware
+      password: 'Password123', // This will be hashed by the pre-save middleware
       role: 'student'
     });
 

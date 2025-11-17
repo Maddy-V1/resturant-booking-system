@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import PasswordStrengthMeter from './PasswordStrengthMeter';
 
 const SignupForm = ({ onSuccess, onSwitchToLogin }) => {
   const [formData, setFormData] = useState({
@@ -11,6 +12,8 @@ const SignupForm = ({ onSuccess, onSwitchToLogin }) => {
   });
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
   const { signup, error, clearError, loading } = useAuth();
 
@@ -123,144 +126,202 @@ const SignupForm = ({ onSuccess, onSwitchToLogin }) => {
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-        Create Your Account
-      </h2>
+    <div className="relative">
+      <div className="absolute -inset-1 rounded-[28px] bg-gradient-to-br from-lime-200 via-emerald-200 to-orange-200 opacity-60 blur-xl" />
+      <div className="relative overflow-hidden rounded-[24px] border border-white/60 bg-white/90 shadow-2xl backdrop-blur">
+        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-500 via-lime-500 to-orange-500" />
+        <div className="px-6 py-7 sm:px-8 sm:py-9 space-y-6">
+          <div className="space-y-3 text-center">
+            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100/80 px-4 py-1 text-xs font-semibold text-emerald-700">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-ping" />
+              Early Access Request
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
+              Create your warm table identity
+            </h2>
+          </div>
 
-      {error && (
-        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-          {error}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-            Full Name
-          </label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              formErrors.name ? 'border-red-500' : 'border-gray-300'
-            }`}
-            placeholder="Enter your full name"
-            disabled={isSubmitting || loading}
-          />
-          {formErrors.name && (
-            <p className="mt-1 text-sm text-red-600">{formErrors.name}</p>
+          {error && (
+            <div className="rounded-2xl border border-red-200 bg-red-50/80 px-4 py-3 text-sm text-red-800">
+              {error}
+            </div>
           )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <label htmlFor="name" className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className={`w-full rounded-2xl border px-4 py-3 text-sm shadow-inner focus:outline-none focus:ring-2 focus:ring-emerald-400 ${
+                    formErrors.name ? 'border-red-400' : 'border-slate-200'
+                  }`}
+                  placeholder="Eg. Aanya Sharma"
+                  autoComplete="name"
+                  disabled={isSubmitting || loading}
+                />
+                {formErrors.name && (
+                  <p className="text-xs text-red-500">{formErrors.name}</p>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <label htmlFor="email" className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  Campus Email
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className={`w-full rounded-2xl border px-4 py-3 text-sm shadow-inner focus:outline-none focus:ring-2 focus:ring-emerald-400 ${
+                    formErrors.email ? 'border-red-400' : 'border-slate-200'
+                  }`}
+                  placeholder="student@college.edu"
+                  autoComplete="email"
+                  disabled={isSubmitting || loading}
+                />
+                {formErrors.email && (
+                  <p className="text-xs text-red-500">{formErrors.email}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label htmlFor="whatsapp" className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                WhatsApp Number (used at counter)
+              </label>
+              <div className="relative">
+                <input
+                  type="tel"
+                  id="whatsapp"
+                  name="whatsapp"
+                  value={formData.whatsapp}
+                  onChange={handleChange}
+                  className={`w-full rounded-2xl border px-4 py-3 text-sm shadow-inner focus:outline-none focus:ring-2 focus:ring-emerald-400 ${
+                    formErrors.whatsapp ? 'border-red-400' : 'border-slate-200'
+                  }`}
+                  placeholder="+91 98765 43210"
+                  autoComplete="tel"
+                  disabled={isSubmitting || loading}
+                />
+                <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-[11px] font-semibold uppercase tracking-wide text-emerald-500">
+                  Sync ready
+                </span>
+              </div>
+              {formErrors.whatsapp && (
+                <p className="text-xs text-red-500">{formErrors.whatsapp}</p>
+              )}
+              <p className="text-xs text-gray-500">
+                This links your offline slips + manual orders to the app automatically.
+              </p>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <label htmlFor="password" className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className={`w-full rounded-2xl border px-4 py-3 text-sm shadow-inner focus:outline-none focus:ring-2 focus:ring-emerald-400 ${
+                      formErrors.password ? 'border-red-400' : 'border-slate-200'
+                    }`}
+                    placeholder="••••••••"
+                    autoComplete="new-password"
+                    disabled={isSubmitting || loading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(prev => !prev)}
+                    className="absolute inset-y-0 right-4 text-xs font-semibold uppercase tracking-wide text-emerald-600"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    disabled={isSubmitting || loading}
+                  >
+                    {showPassword ? 'Hide' : 'Show'}
+                  </button>
+                </div>
+                {formErrors.password && (
+                  <p className="text-xs text-red-500">{formErrors.password}</p>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <label htmlFor="confirmPassword" className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    className={`w-full rounded-2xl border px-4 py-3 text-sm shadow-inner focus:outline-none focus:ring-2 focus:ring-emerald-400 ${
+                      formErrors.confirmPassword ? 'border-red-400' : 'border-slate-200'
+                    }`}
+                    placeholder="Re-enter password"
+                    autoComplete="new-password"
+                    disabled={isSubmitting || loading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(prev => !prev)}
+                    className="absolute inset-y-0 right-4 text-xs font-semibold uppercase tracking-wide text-emerald-600"
+                    aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+                    disabled={isSubmitting || loading}
+                  >
+                    {showConfirmPassword ? 'Hide' : 'Show'}
+                  </button>
+                </div>
+                {formErrors.confirmPassword && (
+                  <p className="text-xs text-red-500">{formErrors.confirmPassword}</p>
+                )}
+              </div>
+            </div>
+
+            <PasswordStrengthMeter password={formData.password} />
+
+            <button
+              type="submit"
+              disabled={isSubmitting || loading}
+              className="group relative w-full overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-500 via-lime-500 to-orange-500 py-3 text-sm font-semibold uppercase tracking-wide text-white shadow-lg transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <span className="absolute inset-0 bg-white/10 opacity-0 transition group-hover:opacity-100" />
+            {isSubmitting || loading ? 'Creating account…' : 'Create account'}
+            </button>
+          </form>
+
+          <div className="space-y-3 text-center text-xs text-gray-500">
+            <p>
+              Already part of the beta?{' '}
+              <button
+                type="button"
+                onClick={onSwitchToLogin}
+                className="font-semibold text-emerald-600 hover:text-emerald-700"
+                disabled={isSubmitting || loading}
+              >
+                Sign in
+              </button>
+            </p>
+            <div className="rounded-2xl border border-slate-200 bg-white/70 px-4 py-3 text-xs text-gray-500">
+              We include manual slips, offline counter orders and reservation notes tied to the phone
+              number you provide. Keep it consistent for a premium pickup flow.
+            </div>
+          </div>
         </div>
-
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-            Email Address
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              formErrors.email ? 'border-red-500' : 'border-gray-300'
-            }`}
-            placeholder="Enter your email"
-            disabled={isSubmitting || loading}
-          />
-          {formErrors.email && (
-            <p className="mt-1 text-sm text-red-600">{formErrors.email}</p>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor="whatsapp" className="block text-sm font-medium text-gray-700 mb-1">
-            WhatsApp Number
-          </label>
-          <input
-            type="tel"
-            id="whatsapp"
-            name="whatsapp"
-            value={formData.whatsapp}
-            onChange={handleChange}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              formErrors.whatsapp ? 'border-red-500' : 'border-gray-300'
-            }`}
-            placeholder="Enter your WhatsApp number"
-            disabled={isSubmitting || loading}
-          />
-          {formErrors.whatsapp && (
-            <p className="mt-1 text-sm text-red-600">{formErrors.whatsapp}</p>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-            Password
-          </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              formErrors.password ? 'border-red-500' : 'border-gray-300'
-            }`}
-            placeholder="Create a password"
-            disabled={isSubmitting || loading}
-          />
-          {formErrors.password && (
-            <p className="mt-1 text-sm text-red-600">{formErrors.password}</p>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-            Confirm Password
-          </label>
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              formErrors.confirmPassword ? 'border-red-500' : 'border-gray-300'
-            }`}
-            placeholder="Confirm your password"
-            disabled={isSubmitting || loading}
-          />
-          {formErrors.confirmPassword && (
-            <p className="mt-1 text-sm text-red-600">{formErrors.confirmPassword}</p>
-          )}
-        </div>
-
-        <button
-          type="submit"
-          disabled={isSubmitting || loading}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition duration-200"
-        >
-          {isSubmitting || loading ? 'Creating Account...' : 'Create Account'}
-        </button>
-      </form>
-
-      <div className="mt-6 text-center">
-        <p className="text-sm text-gray-600">
-          Already have an account?{' '}
-          <button
-            type="button"
-            onClick={onSwitchToLogin}
-            className="text-blue-600 hover:text-blue-500 font-medium"
-            disabled={isSubmitting || loading}
-          >
-            Sign in here
-          </button>
-        </p>
       </div>
     </div>
   );

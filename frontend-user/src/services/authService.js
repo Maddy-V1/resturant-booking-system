@@ -1,14 +1,18 @@
 import api from './api';
+import { authStorage } from '../utils/authStorage';
 
 export const authService = {
   // Login user
-  login: async (credentials) => {
+  login: async (credentials, options = {}) => {
     try {
       const response = await api.post('/auth/login', credentials);
       if (response.data.success) {
         const { token, user } = response.data.data;
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
+        authStorage.persist({
+          token,
+          user,
+          remember: options.remember !== false
+        });
         return { success: true, data: { token, user } };
       }
       return { success: false, error: response.data.error };
@@ -21,13 +25,16 @@ export const authService = {
   },
 
   // Register user
-  signup: async (userData) => {
+  signup: async (userData, options = {}) => {
     try {
       const response = await api.post('/auth/signup', userData);
       if (response.data.success) {
         const { token, user } = response.data.data;
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
+        authStorage.persist({
+          token,
+          user,
+          remember: options.remember !== false
+        });
         return { success: true, data: { token, user } };
       }
       return { success: false, error: response.data.error };
@@ -45,7 +52,7 @@ export const authService = {
       const response = await api.get('/auth/verify');
       if (response.data.success) {
         const { user } = response.data.data;
-        localStorage.setItem('user', JSON.stringify(user));
+        authStorage.updateUser(user);
         return { success: true, data: { user } };
       }
       return { success: false, error: response.data.error };
@@ -59,25 +66,18 @@ export const authService = {
 
   // Logout user
   logout: () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    authStorage.clear();
     return { success: true };
   },
 
   // Get current user from localStorage
   getCurrentUser: () => {
-    try {
-      const user = localStorage.getItem('user');
-      return user ? JSON.parse(user) : null;
-    } catch (error) {
-      return null;
-    }
+    return authStorage.getUser();
   },
 
   // Check if user is authenticated
   isAuthenticated: () => {
-    const token = localStorage.getItem('token');
-    const user = localStorage.getItem('user');
-    return !!(token && user);
+    const token = authStorage.getToken();
+    return !!token;
   }
 };

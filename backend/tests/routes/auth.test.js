@@ -32,7 +32,7 @@ describe('Authentication Routes', () => {
       name: 'Test User',
       email: 'test@example.com',
       whatsapp: '+1234567890',
-      password: 'password123'
+      password: 'Password123'
     };
 
     it('should register a new user successfully', async () => {
@@ -151,7 +151,7 @@ describe('Authentication Routes', () => {
       name: 'Test User',
       email: 'test@example.com',
       whatsapp: '+1234567890',
-      password: 'password123'
+      password: 'Password123'
     };
 
     beforeEach(async () => {
@@ -196,7 +196,7 @@ describe('Authentication Routes', () => {
     it('should reject login with invalid password', async () => {
       const loginData = {
         email: userData.email,
-        password: 'wrongpassword'
+        password: 'WrongPassword1'
       };
 
       const response = await request(app)
@@ -250,6 +250,34 @@ describe('Authentication Routes', () => {
       expect(response.body.success).toBe(false);
       expect(response.body.error.code).toBe('VALIDATION_ERROR');
     });
+
+    it('should lock account after repeated failed logins', async () => {
+      const loginData = {
+        email: userData.email,
+        password: 'WrongPassword1'
+      };
+
+      for (let attempt = 1; attempt <= 5; attempt++) {
+        const expectedStatus = attempt === 5 ? 423 : 401;
+
+        const response = await request(app)
+          .post('/api/auth/login')
+          .send(loginData)
+          .expect(expectedStatus);
+
+        if (attempt === 5) {
+          expect(response.body.error.code).toBe('ACCOUNT_LOCKED');
+          expect(response.body.error.retryAfterSeconds).toBeGreaterThan(0);
+        }
+      }
+
+      const lockedResponse = await request(app)
+        .post('/api/auth/login')
+        .send(loginData)
+        .expect(423);
+
+      expect(lockedResponse.body.error.code).toBe('ACCOUNT_LOCKED');
+    });
   });
 
   describe('GET /api/auth/verify', () => {
@@ -258,7 +286,7 @@ describe('Authentication Routes', () => {
       name: 'Test User',
       email: 'test@example.com',
       whatsapp: '+1234567890',
-      password: 'password123'
+      password: 'Password123'
     };
 
     beforeEach(async () => {

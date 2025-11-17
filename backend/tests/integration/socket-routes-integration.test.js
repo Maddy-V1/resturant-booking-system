@@ -48,7 +48,7 @@ describe('Socket.io Routes Integration', () => {
       name: 'Test Student',
       email: 'student@test.com',
       whatsapp: '1234567890',
-      password: 'password123',
+      password: 'Password123',
       role: 'student'
     });
 
@@ -56,7 +56,7 @@ describe('Socket.io Routes Integration', () => {
       name: 'Test Staff',
       email: 'staff@test.com',
       whatsapp: '0987654321',
-      password: 'password123',
+      password: 'Password123',
       role: 'staff'
     });
 
