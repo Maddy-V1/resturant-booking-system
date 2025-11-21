@@ -81,9 +81,9 @@ const MenuManager = () => {
     if (!searchQuery.trim()) {
       return menuItems;
     }
-    
+
     const query = searchQuery.toLowerCase().trim();
-    return menuItems.filter(item => 
+    return menuItems.filter(item =>
       item.name.toLowerCase().includes(query) ||
       item.description.toLowerCase().includes(query) ||
       item.type.toLowerCase().includes(query) ||
@@ -109,10 +109,10 @@ const MenuManager = () => {
       <div className="px-4 py-6 sm:px-0">
         {/* Header */}
         <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-xl rounded-2xl mb-8">
-          <div className="px-8 py-6">
-            <div className="flex justify-between items-center">
-              <div>
-                <h1 className="text-3xl font-bold mb-2 flex items-center">
+          <div className="px-6 py-6 md:px-8">
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              <div className="mb-4 md:mb-0 text-center md:text-left">
+                <h1 className="text-3xl font-bold mb-2 flex items-center justify-center md:justify-start">
                   <span className="mr-3">🍽️</span>
                   Menu Management
                 </h1>
@@ -120,17 +120,17 @@ const MenuManager = () => {
                   Manage your menu items, set daily deals, and control availability
                 </p>
               </div>
-              <div className="flex space-x-4">
+              <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 w-full md:w-auto">
                 <button
                   onClick={() => setShowDealSelector(true)}
-                  className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center"
+                  className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center justify-center"
                 >
                   <span className="mr-2">⭐</span>
                   Manage Deals
                 </button>
                 <button
                   onClick={handleAddItem}
-                  className="bg-white text-green-600 px-6 py-3 rounded-xl font-medium hover:bg-gray-50 transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center"
+                  className="bg-white text-green-600 px-6 py-3 rounded-xl font-medium hover:bg-gray-50 transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center justify-center"
                 >
                   <span className="mr-2">➕</span>
                   Add New Item
@@ -156,17 +156,17 @@ const MenuManager = () => {
 
         {/* Menu Items Segmented (Live vs Packaged) */}
         <div className="bg-white shadow-xl rounded-2xl">
-          <div className="px-8 py-6 border-b border-gray-200">
-            <div className="flex items-center justify-between mb-4">
+          <div className="px-6 py-6 md:px-8 border-b border-gray-200">
+            <div className="flex flex-col md:flex-row items-center justify-between mb-4 space-y-2 md:space-y-0">
               <h2 className="text-2xl font-bold text-gray-900 flex items-center">
                 <span className="mr-3">📋</span>
                 Menu Items ({filteredMenuItems.length}{searchQuery.trim() ? ` of ${menuItems.length}` : ''})
               </h2>
               <div className="text-sm text-gray-600">Segmented: 🔥 Live • 📦 Ready to Eat</div>
             </div>
-            
+
             {/* Search Bar */}
-            <div className="max-w-md">
+            <div className="w-full md:max-w-md">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <input
@@ -195,7 +195,7 @@ const MenuManager = () => {
                 {searchQuery.trim() ? 'No items found' : 'No menu items yet'}
               </h3>
               <p className="text-gray-500 mb-6">
-                {searchQuery.trim() 
+                {searchQuery.trim()
                   ? `No items found for "${searchQuery}". Try a different search term.`
                   : 'Add your first item to get started with your menu'
                 }

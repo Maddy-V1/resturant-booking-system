@@ -36,13 +36,13 @@ const AdminDashboard = () => {
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           {/* Welcome Section */}
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-xl rounded-2xl p-8 mb-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-4xl font-bold mb-3">
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-xl rounded-2xl p-6 md:p-8 mb-8">
+            <div className="flex flex-col md:flex-row items-center justify-between">
+              <div className="mb-4 md:mb-0 text-center md:text-left">
+                <h1 className="text-3xl md:text-4xl font-bold mb-3">
                   Welcome Back, {user?.name}! 👋
                 </h1>
-                <p className="text-blue-100 text-lg">
+                <p className="text-blue-100 text-base md:text-lg">
                   Manage your college canteen operations efficiently from this dashboard.
                 </p>
               </div>
@@ -55,9 +55,9 @@ const AdminDashboard = () => {
           {/* Manual Order CTA */}
           <div className="mb-8">
             <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-xl rounded-2xl p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <div className="bg-white/20 rounded-full p-4 mr-6">
+              <div className="flex flex-col md:flex-row items-center justify-between">
+                <div className="flex flex-col md:flex-row items-center mb-4 md:mb-0 text-center md:text-left">
+                  <div className="bg-white/20 rounded-full p-4 mb-4 md:mb-0 md:mr-6">
                     <span className="text-4xl">📝</span>
                   </div>
                   <div>
@@ -69,7 +69,7 @@ const AdminDashboard = () => {
                 </div>
                 <button
                   onClick={() => setShowManualOrderModal(true)}
-                  className="bg-white text-indigo-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-50 transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center"
+                  className="w-full md:w-auto bg-white text-indigo-600 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-50 transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center justify-center"
                 >
                   <span className="mr-2">➕</span>
                   Create Order
@@ -114,7 +114,7 @@ const AdminDashboard = () => {
                 </div>
                 <p className="text-sm text-blue-700">Create orders directly from the pickup counter for walk-in customers</p>
               </Link>
-              
+
               <Link
                 to="/menu"
                 className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6 hover:from-green-100 hover:to-emerald-100 transition-all duration-300 group cursor-pointer block"
@@ -125,7 +125,7 @@ const AdminDashboard = () => {
                 </div>
                 <p className="text-sm text-green-700">Add new dishes, set daily deals, and manage item availability</p>
               </Link>
-              
+
               <Link
                 to="/kitchen"
                 className="bg-gradient-to-br from-orange-50 to-red-50 border border-orange-200 rounded-xl p-6 hover:from-orange-100 hover:to-red-100 transition-all duration-300 group cursor-pointer block"

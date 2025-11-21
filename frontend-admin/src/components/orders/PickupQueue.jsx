@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  Clock, 
-  User, 
-  Phone, 
-  CreditCard, 
+import {
+  Clock,
+  User,
+  Phone,
+  CreditCard,
   RefreshCw,
   Info,
   X,
@@ -34,7 +34,7 @@ const OrderDetailsModal = ({ order, isOpen, onClose }) => {
     const now = new Date();
     const created = new Date(createdAt);
     const diffInMinutes = Math.floor((now - created) / (1000 * 60));
-    
+
     if (diffInMinutes < 1) return 'Just now';
     if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
     const hours = Math.floor(diffInMinutes / 60);
@@ -208,13 +208,13 @@ const PickupQueue = () => {
     const token = localStorage.getItem('adminToken');
     console.log('Initializing socket with token:', token ? 'Token present' : 'No token');
     console.log('Socket URL:', SOCKET_URL);
-    
+
     const newSocket = io(SOCKET_URL, {
       auth: {
         token: token
       }
     });
-    
+
     newSocket.on('connect', () => {
       console.log('Connected to socket server');
       setSocketConnected(true);
@@ -300,7 +300,7 @@ const PickupQueue = () => {
 
   const verifyOtpAndMarkDelivered = async () => {
     if (!selectedOrderForOtp) return;
-    
+
     if (otpInput.length !== 4) {
       setOtpError('Please enter a 4-digit OTP');
       return;
@@ -316,9 +316,9 @@ const PickupQueue = () => {
       await api.put(`/orders/${selectedOrderForOtp._id}/status`, {
         status: 'picked_up'
       });
-      
+
       await fetchOrders(false);
-      
+
       console.log(`Order ${selectedOrderForOtp.orderNumber} marked as delivered with OTP verification`);
       setShowOtpModal(false);
       setSelectedOrderForOtp(null);
@@ -339,9 +339,9 @@ const PickupQueue = () => {
       await api.put(`/orders/${orderId}/status`, {
         status: 'picked_up'
       });
-      
+
       await fetchOrders(false);
-      
+
       const orderNumber = orders.find(o => o._id === orderId)?.orderNumber;
       console.log(`Order ${orderNumber} marked as delivered`);
     } catch (error) {
@@ -359,7 +359,7 @@ const PickupQueue = () => {
     // Apply search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
-      filtered = filtered.filter(order => 
+      filtered = filtered.filter(order =>
         order.customerName.toLowerCase().includes(query) ||
         order.customerWhatsapp.toLowerCase().includes(query) ||
         order.orderNumber.toLowerCase().includes(query)
@@ -387,7 +387,7 @@ const PickupQueue = () => {
     const now = new Date();
     const created = new Date(createdAt);
     const diffInMinutes = Math.floor((now - created) / (1000 * 60));
-    
+
     if (diffInMinutes < 1) return 'Just now';
     if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
     const hours = Math.floor(diffInMinutes / 60);
@@ -418,7 +418,7 @@ const PickupQueue = () => {
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="py-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row md:items-center justify-between space-y-4 md:space-y-0">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 flex items-center">
                   <CheckCircle className="h-8 w-8 text-green-600 mr-3" />
@@ -426,17 +426,17 @@ const PickupQueue = () => {
                 </h1>
                 <p className="text-gray-600 mt-2">Orders ready for customer pickup ({filteredOrders.length})</p>
               </div>
-              
-              <div className="flex items-center space-x-3">
+
+              <div className="flex flex-wrap items-center gap-3">
                 {/* Search Bar */}
-                <div className="relative">
+                <div className="relative w-full md:w-auto">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <input
                     type="text"
-                    placeholder="Search by name, phone, or order ID..."
+                    placeholder="Search..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200 w-64"
+                    className="pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all duration-200 w-full md:w-64"
                   />
                   {searchQuery && (
                     <button
@@ -457,7 +457,7 @@ const PickupQueue = () => {
                     <Filter className="h-4 w-4 mr-2" />
                     Sort
                   </button>
-                  
+
                   {showFilterDropdown && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
                       <div className="py-2">
@@ -560,7 +560,7 @@ const PickupQueue = () => {
               {searchQuery.trim() ? 'No orders found' : 'No orders ready for pickup'}
             </h3>
             <p className="text-gray-500">
-              {searchQuery.trim() 
+              {searchQuery.trim()
                 ? `No orders found for "${searchQuery}". Try a different search term.`
                 : 'Orders will appear here when they are ready for customer pickup.'
               }
@@ -577,8 +577,8 @@ const PickupQueue = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
             {filteredOrders.map((order) => (
-              <div 
-                key={order._id} 
+              <div
+                key={order._id}
                 className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-200 relative"
               >
                 {/* Order Header */}
@@ -623,7 +623,7 @@ const PickupQueue = () => {
                       </div>
                     ))}
                   </div>
-                  
+
                   <div className="border-t mt-2 pt-2 flex justify-between items-center">
                     <span className="text-sm font-medium text-gray-700">Total:</span>
                     <span className="text-lg font-bold text-gray-900">₹{calculateTotal(order.items)}</span>
@@ -665,7 +665,7 @@ const PickupQueue = () => {
         </div>
 
         {/* Order Details Modal */}
-        <OrderDetailsModal 
+        <OrderDetailsModal
           order={selectedOrder}
           isOpen={!!selectedOrder}
           onClose={() => setSelectedOrder(null)}
