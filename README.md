@@ -5,6 +5,7 @@ A comprehensive full-stack web application for managing college canteen orders w
 ## 🚀 Features
 
 ### For Students
+https://ggsipu-canteen-user.vercel.app/
 - **User Authentication** - Secure signup/login with JWT tokens
 - **Menu Browsing** - View available items with real-time updates
 - **Order Placement** - Add items to cart and place orders
@@ -14,6 +15,7 @@ A comprehensive full-stack web application for managing college canteen orders w
 - **Account Management** - Manage profile information
 
 ### For Staff
+https://ggsipucanteenstaff.vercel.app/
 - **Admin Dashboard** - Comprehensive management interface
 - **Menu Management** - Add, edit, delete, and toggle menu items
 - **Deal of the Day** - Set special offers with discounted prices
