@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 
-const AdminLoginForm = ({ onLoginSuccess }) => {
+const AdminLoginForm = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -38,22 +38,41 @@ const AdminLoginForm = ({ onLoginSuccess }) => {
     setIsSubmitting(true);
 
     try {
-      const result = await login(formData.email, formData.password);
-      
-      if (result.success) {
-        // Reset form
-        setFormData({ email: '', password: '' });
-        
-        // Call success callback if provided
-        if (onLoginSuccess) {
-          onLoginSuccess();
-        }
-      }
+      await login(formData.email, formData.password);
+      // No need to manually handle success - context will update and ProtectedRoute will re-render
     } catch (error) {
       console.error('Login error:', error);
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleTestLogin = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    setIsSubmitting(true);
+    clearError();
+
+    // Hardcoded test staff - NO BACKEND CALL
+    const testStaff = {
+      id: 'test-staff-001',
+      name: 'Test Staff',
+      email: 'test@staff.com',
+      whatsapp: '+1234567891',
+      role: 'staff'
+    };
+
+    const testToken = 'test-admin-token-' + Date.now();
+
+    // Store credentials directly without backend
+    localStorage.setItem('adminToken', testToken);
+    localStorage.setItem('testStaff', JSON.stringify(testStaff));
+    
+    // Reload page to trigger auth check
+    setTimeout(() => {
+      window.location.reload();
+    }, 300);
   };
 
   return (
@@ -122,13 +141,22 @@ const AdminLoginForm = ({ onLoginSuccess }) => {
             </div>
           </div>
 
-          <div>
+          <div className="space-y-3">
             <button
               type="submit"
               disabled={isSubmitting || !formData.email || !formData.password}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? 'Signing in...' : 'Sign in'}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleTestLogin}
+              disabled={isSubmitting}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? 'Signing in...' : '🧪 Sign in as Test Staff'}
             </button>
           </div>
         </form>

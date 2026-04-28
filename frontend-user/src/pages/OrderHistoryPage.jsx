@@ -12,6 +12,10 @@ const OrderHistoryPage = () => {
   const [dateFilter, setDateFilter] = useState({ from: '', to: '' });
   const [showDateFilter, setShowDateFilter] = useState(false);
 
+  // Check if user is a test user
+  const token = localStorage.getItem('userToken');
+  const isTestUser = token && token.startsWith('test-token-');
+
   // Fetch orders from API
   useEffect(() => {
     const fetchOrders = async () => {
@@ -271,6 +275,23 @@ const OrderHistoryPage = () => {
 
       {/* Orders List with WhatsApp-style grouping */}
       <div className="pb-6">
+        {/* Test User Notice */}
+        {isTestUser && (
+          <div className="mx-4 mt-4 mb-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
+            <div className="flex items-start">
+              <span className="text-2xl mr-3">🧪</span>
+              <div>
+                <p className="text-sm font-semibold text-blue-900 mb-1">
+                  Test User - Demo Orders
+                </p>
+                <p className="text-xs text-blue-800">
+                  You're signed in as a test user. These orders are for demonstration purposes only and are not real orders.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {filteredOrders.length > 0 ? (
           <div>
             {groupOrdersByDate(filteredOrders).map((group) => (

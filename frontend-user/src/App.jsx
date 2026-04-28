@@ -1,48 +1,70 @@
-import React, { useState } from 'react'
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
+import React from 'react'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import './App.css'
-import { AuthProvider } from './context/AuthContext'
+import { AuthProvider, useAuth } from './context/AuthContext'
 import { SocketProvider } from './context/SocketContext'
 import { OrderProvider } from './context/OrderContext'
 import { ToastProvider } from './context/ToastContext'
 import Navbar from './components/common/Navbar'
-import LoginForm from './components/auth/LoginForm'
-import SignupForm from './components/auth/SignupForm'
-import ProtectedRoute from './components/auth/ProtectedRoute'
+import DemoModeBanner from './components/common/DemoModeBanner'
+import AuthPage from './pages/AuthPage'
 import MenuPage from './pages/MenuPage'
 import CartPage from './pages/CartPage'
 import OrderTrackingPage from './pages/OrderTrackingPage'
 import AccountPage from './pages/AccountPage'
 import OrderHistoryPage from './pages/OrderHistoryPage'
 
-// Temporary auth page component
-const AuthPage = () => {
-  const [isLogin, setIsLogin] = useState(true);
-  const navigate = useNavigate();
+// Protected Route Component
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated, loading } = useAuth();
 
-  const handleAuthSuccess = () => {
-    // Redirect to home page after successful authentication
-    navigate('/');
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
-  return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      {isLogin ? (
-        <LoginForm 
-          onSuccess={handleAuthSuccess}
-          onSwitchToSignup={() => setIsLogin(false)}
-        />
-      ) : (
-        <SignupForm 
-          onSuccess={handleAuthSuccess}
-          onSwitchToLogin={() => setIsLogin(true)}
-        />
-      )}
-    </div>
-  );
+  if (!isAuthenticated) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  return children;
 };
 
-
+function AppContent() {
+  return (
+    <Router>
+      <div className="min-h-screen bg-gray-50">
+        <Routes>
+          <Route path="/auth" element={<AuthPage />} />
+          <Route
+            path="/*"
+            element={
+              <ProtectedRoute>
+                <DemoModeBanner />
+                <Navbar />
+                <main>
+                  <Routes>
+                    <Route path="/cart" element={<CartPage />} />
+                    <Route path="/order/:orderId" element={<OrderTrackingPage />} />
+                    <Route path="/account" element={<AccountPage />} />
+                    <Route path="/orders" element={<OrderHistoryPage />} />
+                    <Route path="/" element={<MenuPage />} />
+                  </Routes>
+                </main>
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </div>
+    </Router>
+  );
+}
 
 function App() {
   return (
@@ -50,57 +72,7 @@ function App() {
       <ToastProvider>
         <OrderProvider>
           <SocketProvider>
-            <Router>
-          <div className="min-h-screen bg-gray-50">
-            <Navbar />
-            <main>
-              <Routes>
-                <Route path="/login" element={<AuthPage />} />
-                <Route path="/signup" element={<AuthPage />} />
-                <Route 
-                  path="/cart" 
-                  element={
-                    <ProtectedRoute>
-                      <CartPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/order/:orderId" 
-                  element={
-                    <ProtectedRoute>
-                      <OrderTrackingPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/account" 
-                  element={
-                    <ProtectedRoute>
-                      <AccountPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/orders" 
-                  element={
-                    <ProtectedRoute>
-                      <OrderHistoryPage />
-                    </ProtectedRoute>
-                  } 
-                />
-                <Route 
-                  path="/" 
-                  element={
-                    <ProtectedRoute redirectTo="/login">
-                      <MenuPage />
-                    </ProtectedRoute>
-                  } 
-                />
-              </Routes>
-            </main>
-          </div>
-            </Router>
+            <AppContent />
           </SocketProvider>
         </OrderProvider>
       </ToastProvider>

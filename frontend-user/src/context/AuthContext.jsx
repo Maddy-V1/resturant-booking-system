@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { authService } from '../services/authService';
+import api from '../utils/axios';
 
 const AuthContext = createContext();
 
@@ -20,15 +20,46 @@ export const AuthProvider = ({ children }) => {
   // Check if user is authenticated on app load
   useEffect(() => {
     const checkAuth = async () => {
-      if (authService.isAuthenticated()) {
-        const result = await authService.verifyToken();
-        if (result.success) {
-          setUser(result.data.user);
-        } else {
-          authService.logout();
+      const token = localStorage.getItem('userToken');
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      // Check for hardcoded test user FIRST - no backend call
+      if (token.startsWith('test-token-')) {
+        const testUser = localStorage.getItem('testUser');
+        if (testUser) {
+          try {
+            setUser(JSON.parse(testUser));
+            setLoading(false);
+            return; // Exit early, don't call backend
+          } catch (error) {
+            console.error('Error parsing test user:', error);
+            localStorage.removeItem('userToken');
+            localStorage.removeItem('testUser');
+            setLoading(false);
+            return;
+          }
         }
       }
-      setLoading(false);
+
+      // Only call backend for non-test tokens
+      try {
+        const response = await api.get('/auth/verify');
+        if (response.data.data.user) {
+          setUser(response.data.data.user);
+        } else {
+          localStorage.removeItem('userToken');
+          localStorage.removeItem('testUser');
+        }
+      } catch (error) {
+        console.error('Auth verification failed:', error);
+        localStorage.removeItem('userToken');
+        localStorage.removeItem('testUser');
+      } finally {
+        setLoading(false);
+      }
     };
 
     checkAuth();
@@ -39,57 +70,69 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       setErrorDetails(null);
       setLoading(true);
-      
-      const result = await authService.login({ email, password }, options);
-      
-      if (result.success) {
-        setUser(result.data.user);
-        setLoading(false);
-        return { success: true };
-      } else {
-        setLoading(false);
-        setError(result.error.message);
-        setErrorDetails(result.error);
-        return { success: false, error: result.error };
-      }
+
+      const response = await api.post('/auth/login', {
+        email,
+        password
+      });
+
+      const { token, user: userData } = response.data.data;
+
+      // Store token and set user
+      localStorage.setItem('userToken', token);
+      setUser(userData);
+
+      return { success: true };
     } catch (error) {
-      setLoading(false);
-      const errorMessage = 'Login failed';
+      const errorData = error.response?.data?.error;
+      const errorMessage = errorData?.message || error.message || 'Login failed';
+      
       setError(errorMessage);
-      setErrorDetails({ message: errorMessage, code: 'LOGIN_ERROR' });
-      return { success: false, error: { message: errorMessage } };
+      setErrorDetails(errorData || null);
+      
+      return { success: false, error: errorMessage };
+    } finally {
+      setLoading(false);
     }
   };
 
-  const signup = async (userData, options = {}) => {
+  const signup = async (name, email, whatsapp, password) => {
     try {
       setError(null);
       setErrorDetails(null);
       setLoading(true);
-      
-      const result = await authService.signup(userData, options);
-      
-      if (result.success) {
-        setUser(result.data.user);
-        setLoading(false);
-        return { success: true };
-      } else {
-        setLoading(false);
-        setError(result.error.message);
-        setErrorDetails(result.error);
-        return { success: false, error: result.error };
-      }
+
+      const response = await api.post('/auth/signup', {
+        name,
+        email,
+        whatsapp,
+        password,
+        role: 'student'
+      });
+
+      const { token, user: userData } = response.data.data;
+
+      // Store token and set user
+      localStorage.setItem('userToken', token);
+      setUser(userData);
+
+      return { success: true };
     } catch (error) {
-      setLoading(false);
-      const errorMessage = 'Signup failed';
+      const errorData = error.response?.data?.error;
+      const errorMessage = errorData?.message || error.message || 'Signup failed';
+      
       setError(errorMessage);
-      setErrorDetails({ message: errorMessage, code: 'SIGNUP_ERROR' });
-      return { success: false, error: { message: errorMessage } };
+      setErrorDetails(errorData || null);
+      
+      return { success: false, error: errorMessage };
+    } finally {
+      setLoading(false);
     }
   };
 
   const logout = () => {
-    authService.logout();
+    localStorage.removeItem('userToken');
+    localStorage.removeItem('testUser');
     setUser(null);
     setError(null);
     setErrorDetails(null);

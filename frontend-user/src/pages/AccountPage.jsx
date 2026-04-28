@@ -11,6 +11,10 @@ const AccountPage = () => {
   const [recentOrders, setRecentOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Check if user is a test user
+  const token = localStorage.getItem('userToken');
+  const isTestUser = token && token.startsWith('test-token-');
+
   // Fetch recent orders
   useEffect(() => {
     const fetchRecentOrders = async () => {
@@ -116,6 +120,23 @@ const AccountPage = () => {
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
+
+          {/* Test User Notice */}
+          {isTestUser && (
+            <div className="mb-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
+              <div className="flex items-start">
+                <span className="text-2xl mr-3">🧪</span>
+                <div>
+                  <p className="text-sm font-semibold text-blue-900 mb-1">
+                    Test User - Demo Orders
+                  </p>
+                  <p className="text-xs text-blue-800">
+                    You're signed in as a test user. These orders are for demonstration purposes only and are not real orders.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {recentOrders.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -158,6 +158,15 @@ VITE_SOCKET_URL=http://localhost:5001
 
 ## 📱 Usage
 
+### Quick Test Access
+Both portals have a **"🧪 Sign in as Test User"** button for instant access!
+
+**Test Credentials:**
+- **Student:** `test@student.com` / `Test123456`
+- **Staff:** `test@staff.com` / `Test123456`
+
+See [TEST_CREDENTIALS.md](TEST_CREDENTIALS.md) for detailed information.
+
 ### For Students
 1. **Sign up** with name, email, WhatsApp number, and password
 2. **Browse menu** and add items to cart
@@ -193,6 +202,16 @@ npm test                   # Run admin app tests
 ```
 
 ## 🚀 Deployment
+
+### Render Deployment (Recommended)
+See [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md) for complete deployment instructions.
+
+**Quick Steps:**
+1. Push code to GitHub
+2. Create MongoDB Atlas database
+3. Deploy backend, admin, and user frontends on Render
+4. Configure environment variables
+5. Run `npm run create-test-users` to set up test accounts
 
 ### Backend Deployment
 1. Set up MongoDB Atlas or your preferred database

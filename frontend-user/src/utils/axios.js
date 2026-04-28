@@ -28,7 +28,7 @@ const api = axios.create({
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('userToken') || localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -49,11 +49,12 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !isRedirecting) {
       // Token expired or invalid
       isRedirecting = true;
+      localStorage.removeItem('userToken');
       localStorage.removeItem('token');
       
-      // Only redirect if not already on login page
-      if (!window.location.pathname.includes('/login')) {
-        window.location.href = '/login';
+      // Only redirect if not already on auth page
+      if (!window.location.pathname.includes('/auth')) {
+        window.location.href = '/auth';
       }
       
       // Reset flag after a delay

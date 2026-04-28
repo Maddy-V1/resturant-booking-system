@@ -1,15 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, ShoppingCart, UtensilsCrossed, Package, UserCircle, LogOut, ChevronDown } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { ShoppingCart, UtensilsCrossed, Package, UserCircle, ChevronDown } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useOrder } from '../../context/OrderContext';
 
 const Navbar = () => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { cartItems } = useOrder();
   const dropdownRef = useRef(null);
 
@@ -28,18 +26,8 @@ const Navbar = () => {
     return false;
   };
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
   const toggleUserDropdown = () => {
     setIsUserDropdownOpen(!isUserDropdownOpen);
-  };
-
-  const handleLogout = () => {
-    logout();
-    setIsUserDropdownOpen(false);
-    navigate('/login');
   };
 
   // Close dropdown when clicking outside
@@ -77,11 +65,10 @@ const Navbar = () => {
                   <Link
                     key={item.name}
                     to={item.href}
-                    className={`relative px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-1 ${
-                      isActive(item.href)
+                    className={`relative px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-1 ${isActive(item.href)
                         ? 'text-blue-600 bg-blue-50 border-b-2 border-blue-600'
                         : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
-                    }`}
+                      }`}
                   >
                     <Icon className="h-4 w-4" />
                     <span>{item.name}</span>
@@ -101,11 +88,11 @@ const Navbar = () => {
             <div className="flex items-center space-x-2">
               <div className="h-8 w-8 bg-blue-600 rounded-full flex items-center justify-center">
                 <span className="text-white text-sm font-medium">
-                  {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                  {user?.name?.charAt(0)?.toUpperCase() || 'G'}
                 </span>
               </div>
               <span className="text-sm text-gray-700">
-                Welcome, {user?.name?.split(' ')[0] || 'Student'}
+                Welcome, {user?.name?.split(' ')[0] || 'Guest'}
               </span>
             </div>
           </div>
@@ -133,12 +120,11 @@ const Navbar = () => {
               >
                 <div className="h-8 w-8 bg-blue-600 rounded-full flex items-center justify-center">
                   <span className="text-white text-sm font-medium">
-                    {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                    {user?.name?.charAt(0)?.toUpperCase() || 'G'}
                   </span>
                 </div>
-                <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${
-                  isUserDropdownOpen ? 'rotate-180' : ''
-                }`} />
+                <ChevronDown className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${isUserDropdownOpen ? 'rotate-180' : ''
+                  }`} />
               </button>
 
               {/* Dropdown Menu */}
@@ -146,13 +132,13 @@ const Navbar = () => {
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
                   <div className="px-4 py-2 border-b border-gray-100">
                     <div className="text-sm font-medium text-gray-900">
-                      {user?.name || 'Student'}
+                      {user?.name || 'Guest'}
                     </div>
                     <div className="text-xs text-gray-500">
-                      {user?.email || 'student@college.edu'}
+                      {user?.email || 'guest@canteen.com'}
                     </div>
                   </div>
-                  
+
                   <Link
                     to="/account"
                     onClick={() => setIsUserDropdownOpen(false)}
@@ -161,7 +147,7 @@ const Navbar = () => {
                     <UserCircle className="h-4 w-4" />
                     <span>Account</span>
                   </Link>
-                  
+
                   <Link
                     to="/orders"
                     onClick={() => setIsUserDropdownOpen(false)}
@@ -170,14 +156,6 @@ const Navbar = () => {
                     <Package className="h-4 w-4" />
                     <span>My Orders</span>
                   </Link>
-                  
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    <span>Logout</span>
-                  </button>
                 </div>
               )}
             </div>

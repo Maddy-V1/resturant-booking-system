@@ -1,0 +1,57 @@
+services:
+  # Backend API Service
+  - type: web
+    name: college-canteen-backend
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5001
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        sync: false
+    healthCheckPath: /api/health
+
+  # Admin Frontend Service
+  - type: web
+    name: college-canteen-admin
+    env: static
+    region: oregon
+    plan: free
+    buildCommand: cd frontend-admin && npm install && npm run build
+    staticPublishPath: frontend-admin/dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false
+      - key: VITE_SOCKET_URL
+        sync: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+  # User Frontend Service
+  - type: web
+    name: college-canteen-user
+    env: static
+    region: oregon
+    plan: free
+    buildCommand: cd frontend-user && npm install && npm run build
+    staticPublishPath: frontend-user/dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false
+      - key: VITE_SOCKET_URL
+        sync: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

@@ -11,7 +11,9 @@
     "test:models": "jest tests/models --runInBand",
     "seed": "node scripts/seedData.js",
     "verify": "node scripts/verifyData.js",
+    "verify-deployment": "node scripts/verifyDeployment.js",
     "create-test-user": "node scripts/createTestUser.js",
+    "create-test-users": "node scripts/createTestUsers.js",
     "add-sample-menu": "node scripts/addSampleMenuItems.js"
   },
   "dependencies": {

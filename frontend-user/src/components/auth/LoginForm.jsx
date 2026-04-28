@@ -105,6 +105,33 @@ const LoginForm = ({ onSuccess, onSwitchToSignup }) => {
     }
   };
 
+  const handleTestLogin = async () => {
+    setIsSubmitting(true);
+    setFormErrors({});
+    clearError();
+
+    // Hardcoded test user - NO BACKEND CALL
+    const testUser = {
+      id: 'test-student-001',
+      name: 'Test Student',
+      email: 'test@student.com',
+      whatsapp: '+1234567890',
+      role: 'student'
+    };
+
+    const testToken = 'test-token-' + Date.now();
+
+    // Store credentials directly without backend
+    localStorage.setItem('userToken', testToken);
+    localStorage.setItem('testUser', JSON.stringify(testUser));
+    
+    // Small delay for UX
+    setTimeout(() => {
+      setIsSubmitting(false);
+      onSuccess?.();
+    }, 500);
+  };
+
   const formatCountdown = (seconds) => {
     if (seconds == null) return null;
     const mins = Math.floor(seconds / 60);
@@ -232,6 +259,16 @@ const LoginForm = ({ onSuccess, onSwitchToSignup }) => {
             >
               <span className="absolute inset-0 bg-white/10 opacity-0 transition group-hover:opacity-100" />
               {isSubmitting || loading ? 'Signing you in…' : 'Enter the canteen'}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleTestLogin}
+              disabled={isSubmitting || loading}
+              className="group relative w-full overflow-hidden rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-500 py-3 text-sm font-semibold uppercase tracking-wide text-white shadow-lg transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <span className="absolute inset-0 bg-white/10 opacity-0 transition group-hover:opacity-100" />
+              🧪 Sign in as Test User
             </button>
           </form>
 

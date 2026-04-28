@@ -27,6 +27,28 @@ export const AdminAuthProvider = ({ children }) => {
         return;
       }
 
+      // Check for hardcoded test staff FIRST - no backend call
+      if (token.startsWith('test-admin-token-')) {
+        const testStaff = localStorage.getItem('testStaff');
+        if (testStaff) {
+          try {
+            const staffData = JSON.parse(testStaff);
+            if (staffData.role === 'staff') {
+              setUser(staffData);
+              setLoading(false);
+              return; // Exit early, don't call backend
+            }
+          } catch (error) {
+            console.error('Error parsing test staff:', error);
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('testStaff');
+            setLoading(false);
+            return;
+          }
+        }
+      }
+
+      // Only call backend for non-test tokens
       try {
         const response = await api.get('/auth/verify');
         if (response.data.data.user && response.data.data.user.role === 'staff') {
@@ -34,10 +56,12 @@ export const AdminAuthProvider = ({ children }) => {
         } else {
           // User is not staff, clear token
           localStorage.removeItem('adminToken');
+          localStorage.removeItem('testStaff');
         }
       } catch (error) {
         console.error('Auth verification failed:', error);
         localStorage.removeItem('adminToken');
+        localStorage.removeItem('testStaff');
       } finally {
         setLoading(false);
       }
@@ -79,6 +103,7 @@ export const AdminAuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('adminToken');
+    localStorage.removeItem('testStaff');
     setUser(null);
     setError(null);
   };
