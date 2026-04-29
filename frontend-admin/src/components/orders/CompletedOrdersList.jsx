@@ -18,6 +18,20 @@ const CompletedOrdersList = () => {
     const fetchCompletedOrders = async () => {
         try {
             setLoading(true);
+            
+            // Check if test user
+            const token = localStorage.getItem('adminToken');
+            const isTestUser = token && token.startsWith('test-admin-token-');
+            
+            if (isTestUser) {
+                // Return empty orders for test users
+                console.log('Test user: No completed orders');
+                setOrders([]);
+                setError(null);
+                setLoading(false);
+                return;
+            }
+            
             const response = await api.get('/staff/orders');
             const ordersData = response.data.data || [];
 

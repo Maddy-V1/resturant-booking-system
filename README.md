@@ -5,18 +5,23 @@ A comprehensive full-stack web application for managing college canteen orders w
 ## 🚀 Features
 
 ### For Students
-https://ggsipu-canteen-user.vercel.app/
+**Live Demo:** https://ggsipu-canteen-user.vercel.app/
+
 - **User Authentication** - Secure signup/login with JWT tokens
+- **Test User Access** - One-click test login (works offline!)
 - **Menu Browsing** - View available items with real-time updates
 - **Order Placement** - Add items to cart and place orders
 - **Payment Options** - Online payment or pay-at-counter
 - **Real-time Tracking** - Track order status with live updates
 - **Order History** - View past orders and details
 - **Account Management** - Manage profile information
+- **Offline Mode** - Full functionality without backend (demo mode)
 
 ### For Staff
-https://ggsipucanteenstaff.vercel.app/
+**Live Demo:** https://ggsipucanteenstaff.vercel.app/
+
 - **Admin Dashboard** - Comprehensive management interface
+- **Test Staff Access** - One-click test login
 - **Menu Management** - Add, edit, delete, and toggle menu items
 - **Deal of the Day** - Set special offers with discounted prices
 - **Order Queue** - View and manage incoming orders
@@ -31,6 +36,8 @@ https://ggsipucanteenstaff.vercel.app/
 - **Responsive Design** - Mobile-friendly interface
 - **Order Claiming System** - Staff can place orders for students
 - **Payment Status Tracking** - Separate queues for paid/unpaid orders
+- **Offline Demo Mode** - Works without backend for testing
+- **Test User System** - Instant access with demo data
 - **Comprehensive Testing** - Unit and integration tests
 
 ## 🛠️ Tech Stack
@@ -87,7 +94,26 @@ college-canteen-ordering/
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### 🧪 Test Without Setup (Recommended for Quick Demo)
+
+**No backend or database needed!**
+
+```bash
+# Just start the frontend
+cd frontend-user
+npm install
+npm run dev
+
+# Open http://localhost:5173
+# Click "🧪 Sign in as Test User"
+# Everything works offline! 🎉
+```
+
+**Test Credentials:**
+- **Student:** `test@student.com` / `Test123456`
+- **Staff:** `test@staff.com` / `Test123456`
+
+### Prerequisites (For Full Setup)
 - Node.js (v16 or higher)
 - MongoDB (local or MongoDB Atlas)
 - npm or yarn
@@ -108,6 +134,9 @@ college-canteen-ordering/
    # Create .env file
    cp .env.example .env
    # Edit .env with your MongoDB URI and JWT secret
+   
+   # Create test users
+   npm run create-test-users
    
    # Start the server
    npm start
@@ -158,14 +187,22 @@ VITE_SOCKET_URL=http://localhost:5001
 
 ## 📱 Usage
 
-### Quick Test Access
+### 🧪 Quick Test Access (No Backend Required!)
+
 Both portals have a **"🧪 Sign in as Test User"** button for instant access!
 
 **Test Credentials:**
 - **Student:** `test@student.com` / `Test123456`
 - **Staff:** `test@staff.com` / `Test123456`
 
-See [TEST_CREDENTIALS.md](TEST_CREDENTIALS.md) for detailed information.
+**Features in Demo Mode:**
+- ✅ Full UI/UX experience
+- ✅ Browse menu (5 demo items)
+- ✅ Add to cart & checkout
+- ✅ View order history (3 demo orders)
+- ✅ Account management
+- ⚠️ Orders are simulated (not real)
+- 💡 Perfect for demos and testing!
 
 ### For Students
 1. **Sign up** with name, email, WhatsApp number, and password
@@ -203,15 +240,44 @@ npm test                   # Run admin app tests
 
 ## 🚀 Deployment
 
-### Render Deployment (Recommended)
-See [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md) for complete deployment instructions.
+### Backend Command for Render
 
-**Quick Steps:**
+**Start Command:**
+```bash
+npm start
+```
+
+**Build Command:**
+```bash
+npm install
+```
+
+**Environment Variables Required:**
+```
+NODE_ENV=production
+PORT=5001
+MONGODB_URI=<your-mongodb-atlas-uri>
+JWT_SECRET=<your-secret-key>
+CORS_ORIGIN=<your-frontend-urls>
+```
+
+**After Deployment:**
+```bash
+# Create test users via Render Shell
+npm run create-test-users
+```
+
+### Quick Deployment Guide
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for complete instructions.
+
+**Steps:**
 1. Push code to GitHub
 2. Create MongoDB Atlas database
-3. Deploy backend, admin, and user frontends on Render
-4. Configure environment variables
-5. Run `npm run create-test-users` to set up test accounts
+3. Deploy backend to Render (use command above)
+4. Deploy frontends to Vercel/Netlify
+5. Configure environment variables
+6. Create test users
 
 ### Backend Deployment
 1. Set up MongoDB Atlas or your preferred database

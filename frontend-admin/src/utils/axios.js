@@ -24,9 +24,16 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid
-      localStorage.removeItem('adminToken');
-      window.location.href = '/';
+      // Check if it's a test user
+      const token = localStorage.getItem('adminToken');
+      const isTestUser = token && token.startsWith('test-admin-token-');
+      
+      // Only redirect if NOT a test user
+      if (!isTestUser) {
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('testStaff');
+        window.location.href = '/';
+      }
     }
     return Promise.reject(error);
   }

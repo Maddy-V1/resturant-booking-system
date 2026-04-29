@@ -258,6 +258,20 @@ const OrderQueue = () => {
   const fetchOrders = async (showLoader = true) => {
     try {
       if (showLoader) setLoading(true);
+      
+      // Check if test user
+      const token = localStorage.getItem('adminToken');
+      const isTestUser = token && token.startsWith('test-admin-token-');
+      
+      if (isTestUser) {
+        // Return empty orders for test users
+        console.log('Test user: No orders in kitchen queue');
+        setOrders([]);
+        setError(null);
+        if (showLoader) setLoading(false);
+        return;
+      }
+      
       const response = await api.get('/staff/orders');
       const ordersData = response.data.data || [];
       // Filter only preparing orders since all orders will be in preparing status
